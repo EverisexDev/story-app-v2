@@ -20,7 +20,9 @@ export default function AppNavigator() {
   // const [currentChatIdx, setCurrentChatIdx] = useState(-1);
   // const [currentBackIdx, setCurrentBackIdx] = useState(0);
   return (
-    <Text></Text>
+    <StoryNavigator>
+      
+    </StoryNavigator>
 
     
     );
