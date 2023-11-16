@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, useWindowDimensions } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import axios from 'axios';
 import RenderHtml from 'react-native-render-html';
 
 import AppHeader from '../components/AppHeader';
-import AppText from '../components/AppText';
 import colors from '../config/colors';
 import storage from '../storage/storage';
 import Content from './Content';
@@ -14,6 +13,7 @@ import Screen from './Screen';
 function VersionScreen() {
   const isFocused = useIsFocused();
   const [quote, setQuote] = useState('');
+  const { width } = useWindowDimensions();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -24,7 +24,12 @@ function VersionScreen() {
         }
         const data = await response.json();
         if (data.length > 0) {
-          setQuote(data[0].about_content);
+          // 替換相對圖片URL為絕對URL
+          const modifiedHtml = data[0].about_content.replace(
+            /src="\/images\//g,
+            `src="http://api.xstudio-mclub.url.tw/images/`
+          );
+          setQuote(modifiedHtml);
         }
       } catch (error) {
         console.error(error);
@@ -33,14 +38,13 @@ function VersionScreen() {
 
     fetchData();
   }, []);
+
   return (
     <Screen>
       <AppHeader />
       <Content>
         <ScrollView>
-          <AppText>
-            <RenderHtml source={{ html: quote }} /> 
-            </AppText>
+          <RenderHtml contentWidth={width} source={{ html: quote }} />
         </ScrollView>
       </Content>
     </Screen>
