@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ScrollView } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import axios from 'axios';
+import RenderHtml from 'react-native-render-html';
 
 import AppHeader from '../components/AppHeader';
 import AppText from '../components/AppText';
@@ -32,13 +33,14 @@ function VersionScreen() {
 
     fetchData();
   }, []);
-
   return (
     <Screen>
       <AppHeader />
       <Content>
         <ScrollView>
-          <AppText>{quote}</AppText>
+          <AppText>
+            <RenderHtml source={{ html: quote }} /> 
+            </AppText>
         </ScrollView>
       </Content>
     </Screen>
