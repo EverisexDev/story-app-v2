@@ -7,7 +7,7 @@ export default [
         name: "小鎮失蹤手冊",
         author: "烏奴奴&夏佩爾",
         cover: require("./cover/C1-1.jpg"),
-        // story: require("./Gone/story"),
+        story: require("./Gone/story.js"),
       },
       {
         id: 2,
