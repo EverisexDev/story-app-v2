@@ -62,4 +62,5 @@ const deleteStory = async (story, storeKey) => {
 const deleteAllStorage = async () => {
   AsyncStorage.clear();
 };
+
 export default { storeStory, getStorys, deleteStory, deleteAllStorage };
