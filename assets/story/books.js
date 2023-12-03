@@ -1,6 +1,8 @@
+// 故事主選單
 export default [
   {
     type: "懸疑犯罪",
+    // 
     storys: [
       {
         id: 1,
@@ -14,48 +16,6 @@ export default [
         name: "惡徒",
         author: "夏佩爾&烏奴奴",
         cover: require("./cover/L1-2.jpg"),
-      },
-      {
-        id: 3,
-        name: "謀殺俱樂部",
-        author: "烏奴奴&夏佩爾",
-        cover: require("./cover/L1-3.jpg"),
-      },
-      {
-        id: 4,
-        name: "禁書人",
-        author: "夏佩爾",
-        cover: require("./cover/L1-4.jpg"),
-      },
-      {
-        id: 5,
-        name: "殺人上癮",
-        author: "夏佩爾&烏奴奴",
-        cover: require("./cover/L1-5.jpg"),
-      },
-      {
-        id: 6,
-        name: "獵頭",
-        author: "夏佩爾&烏奴奴",
-        cover: require("./cover/L1-6.jpg"),
-      },
-      {
-        id: 7,
-        name: "十三頻道",
-        author: "夏佩爾&烏奴奴",
-        cover: require("./cover/L1-7.jpg"),
-      },
-      {
-        id: 8,
-        name: "DV偵探",
-        author: "夏佩爾&烏奴奴",
-        cover: require("./cover/L1-8.jpg"),
-      },
-      {
-        id: 9,
-        name: "準時要命",
-        author: "夏佩爾&烏奴奴",
-        cover: require("./cover/L1-9.jpg"),
       },
     ],
   },
