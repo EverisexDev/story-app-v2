@@ -97,6 +97,7 @@ http://api.xstudio-mclub.url.tw/api/v1/admin/content/{storyid}/{chapterid}/{scre
 ```
 All:
 http://api.xstudio-mclub.url.tw/api/v1/admin/main-menu
+
 FindOne:
 http://api.xstudio-mclub.url.tw/api/v1/admin/main-menu/{id}
 
@@ -120,6 +121,7 @@ http://api.xstudio-mclub.url.tw/api/v1/admin/main-menu/{id}
 ```
 All:
 http://api.xstudio-mclub.url.tw/api/v1/admin/menu-foolproof
+
 FindOne:
 http://api.xstudio-mclub.url.tw/api/v1/admin/menu-foolproof/{id}
 
@@ -146,6 +148,7 @@ http://api.xstudio-mclub.url.tw/api/v1/admin/menu-foolproof/{id}
 ```
 All:
 http://api.xstudio-mclub.url.tw/api/v1/admin/menu
+
 FindOne:
 http://api.xstudio-mclub.url.tw/api/v1/admin/menu/{id}
 
@@ -220,6 +223,7 @@ http://api.xstudio-mclub.url.tw/api/v1/admin/purchasehistory/{menberid}
 ```
 All:
 http://api.xstudio-mclub.url.tw/api/v1/admin/role
+
 FindOne:
 http://api.xstudio-mclub.url.tw/api/v1/admin/role/{storyid}
 
@@ -241,6 +245,7 @@ http://api.xstudio-mclub.url.tw/api/v1/admin/role/{storyid}
 ```
 All:
 http://api.xstudio-mclub.url.tw/api/v1/admin/screenings
+
 FindOne:
 http://api.xstudio-mclub.url.tw/api/v1/admin/screenings/{storyid}/{chapterid}
 
@@ -264,6 +269,7 @@ http://api.xstudio-mclub.url.tw/api/v1/admin/screenings/{storyid}/{chapterid}
 ```
 All:
 http://api.xstudio-mclub.url.tw/api/v1/admin/setup-chapter-foolproof
+
 FindOne:
 http://api.xstudio-mclub.url.tw/api/v1/admin/setup-chapter-foolproof/{id}
 
@@ -290,6 +296,7 @@ http://api.xstudio-mclub.url.tw/api/v1/admin/setup-chapter-foolproof/{id}
 ```
 All:
 http://api.xstudio-mclub.url.tw/api/v1/admin/setup-chapter
+
 FindOne:
 http://api.xstudio-mclub.url.tw/api/v1/admin/setup-chapter/{id}
 ```
@@ -306,6 +313,7 @@ http://api.xstudio-mclub.url.tw/api/v1/admin/setup-chapter/{id}
 ```
 All:
 http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story-list
+
 FindOne:
 http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story-list/{id}
 
@@ -353,6 +361,7 @@ http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story-role-foolproof/{id}
 ```
 All:
 http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story-role
+
 FindOne:
 http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story-role/{id}
 
@@ -376,6 +385,7 @@ http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story-role/{id}
 ```
 All:
 http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story
+
 FindOne:
 http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story/{id}
 ```
@@ -398,6 +408,7 @@ http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story/{id}
 ```
 All:
 http://api.xstudio-mclub.url.tw/api/v1/admin/story-list
+
 FindOne:
 http://api.xstudio-mclub.url.tw/api/v1/admin/story-list/{id}
 
@@ -421,6 +432,7 @@ http://api.xstudio-mclub.url.tw/api/v1/admin/story-list/{id}
 ```
 All:
 http://api.xstudio-mclub.url.tw/api/v1/admin/story-type
+
 FindOne:
 http://api.xstudio-mclub.url.tw/api/v1/admin/story-type/{id}
 ```
@@ -435,6 +447,7 @@ http://api.xstudio-mclub.url.tw/api/v1/admin/story-type/{id}
 ```
 All:
 http://api.xstudio-mclub.url.tw/api/v1/admin/subscriptionrecord
+
 FindOne:
 http://api.xstudio-mclub.url.tw/api/v1/admin/subscriptionrecord/{menberid}
 ```
