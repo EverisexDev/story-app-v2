@@ -6,10 +6,7 @@
 ### 關於管理
 
 ```
-
 http://api.xstudio-mclub.url.tw/api/v1/admin/about
-
-
 ```
 
 |     項目      | 資料類型 |     欄位     |
@@ -338,6 +335,7 @@ http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story-list/{id}
 ```
 All:
 http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story-role-foolproof
+
 FindOne:
 http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story-role-foolproof/{id}
 
