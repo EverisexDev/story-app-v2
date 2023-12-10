@@ -458,6 +458,28 @@ http://api.xstudio-mclub.url.tw/api/v1/admin/subscriptionrecord/{menberid}
 |  sub_end_time  |  number  | 訂閱結束時間 |
 |    sub_plan    |  number  |   訂閱方案   |
 
+### 會員清單
+
+```
+All:
+http://api.xstudio-mclub.url.tw/api/v1/admin/member
+
+FindOne:
+http://api.xstudio-mclub.url.tw/api/v1/admin/member/{id}
+
+```
+
+|      項目      | 資料類型 |     欄位     |
+| :------------: | :------: | :----------: |
+|    id    |  STRING  |   會員序號   |
+|    account    |  STRING  |   帳號   |
+|    password     |  STRING  |   出生年月日   |
+| birthday |  STRING  | 出生年月日 |
+|  sex  |  STRING| 性別 |
+|  register  |  STRING| 註冊方式 |
+|    role    |  STRING  |   權限級別   |
+
+
 ## Author
 
 Michael Huang
