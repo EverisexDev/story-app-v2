@@ -5,6 +5,7 @@ import {
   ImageBackground,
   StyleSheet,
   TouchableWithoutFeedback,
+  Platform
 } from "react-native";
 
 import StoryContext from "../components/story/context";

@@ -1,14 +1,14 @@
 import React from "react";
 import { StatusBar } from "expo-status-bar";
-import { View, StyleSheet, Platform } from "react-native";
+import { View, StyleSheet, Platform, SafeAreaView } from "react-native";
 import colors from "../config/colors";
 
 function Screen({ children, style }) {
   return (
-    <View style={[styles.container, style]}>
+    <SafeAreaView style={[styles.container, style]}>
       <StatusBar style="auto" hidden={true} />
       {children}
-    </View>
+    </SafeAreaView>
   );
 }
 

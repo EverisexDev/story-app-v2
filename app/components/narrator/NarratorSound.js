@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, TouchableOpacity, Image } from "react-native";
-import { Audio } from "expo-av";
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Pressable, Image } from 'react-native';
+import { Audio } from 'expo-av';
 
 function NarratorSound({ soundMsg, soundImg }) {
   const [sound, setSound] = useState();
 
   async function playSound() {
-    console.log("Loading Sound");
+    console.log('Loading Sound');
     const { sound } = await Audio.Sound.createAsync(soundMsg);
     setSound(sound);
 
-    console.log("Playing Sound");
+    console.log('Playing Sound');
     await sound.playAsync();
   }
 
@@ -33,7 +33,7 @@ function NarratorSound({ soundMsg, soundImg }) {
     return () => {
       setTimeout(() => {
         try {
-          console.log("Unloading Sound");
+          console.log('Unloading Sound');
           sound.unloadAsync();
         } catch {}
       }, 40000);
@@ -41,13 +41,13 @@ function NarratorSound({ soundMsg, soundImg }) {
   }, [sound]);
 
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={() => {
         playSound();
       }}
     >
       <Image style={styles.img} source={soundImg} />
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 

@@ -1,36 +1,49 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
-  TouchableOpacity,
+  Pressable,
   Image,
   Dimensions,
   Alert,
-} from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { Asset } from "expo-asset";
-
-import StoryContext from "../story/context";
-import routes from "../../navigations/routes";
-import AppText from "../AppText";
-import colors from "../../config/colors";
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { Asset } from 'expo-asset';
+import StoryContext from '../story/context';
+import routes from '../../navigations/routes';
+import AppText from '../AppText';
+import colors from '../../config/colors';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
+const screenWidth = Dimensions.get('window').width;
 
 function Book({
-  name,
-  author,
-  cover,
-  story,
-  cont = null,
+  main_menu_name: name,
+  main_menu_font_size = '',
+  main_menu_color = '',
+  main_menu_image = '',
+  main_menu_weight = '',
+  main_menu_btn_left,
+  main_menu_btn_right,
+  main_menu_content = '',
+  main_menu_title = '',
+  noChapter = null,
+  storyStatus = '',
+  author = '',
   backSN = 0,
   chatSN = -1,
 }) {
   const navigation = useNavigation();
   const [ready, setReady] = useState(false);
-  const [image, setImage] = useState(Asset.fromModule(cover));
+  const isReadFree = noChapter?.read_free === '開放' ?? false;
+  const img = require('../../../assets/story/cover/C1-1.jpg');
+
+  const imageUri = 'http://api.xstudio-mclub.url.tw/' + main_menu_image;
+  const [image, setImage] = useState(Asset.fromModule(img ?? imageUri));
   const { setCurrentStory, setCurrentBackIdx, setCurrentChatIdx } =
     useContext(StoryContext);
-
-  const screenWidth = Dimensions.get("window").width;
 
   const padImgStyle = screenWidth > 500 ? { width: 225, height: 330 } : {};
 
@@ -40,7 +53,7 @@ function Book({
   }, []);
 
   const resizeImage = () => {
-    let resizeRate =
+    const resizeRate =
       screenWidth > 500 ? (screenWidth * 0.6) / image.width : 256 / image.width;
     const newImage = {
       ...image,
@@ -51,91 +64,122 @@ function Book({
     setReady(true);
   };
 
+  const storyPayload =  {
+    name,
+    cover: main_menu_image,
+    author,
+    // storyId: storyid,
+    // chapterId: id,
+  }
+
   const goToStory = () => {
     // 如果有故事內容，才要跳轉頁面
-    if (story) {
-      setCurrentStory(story);
-      setCurrentBackIdx(backSN);
-      setCurrentChatIdx(chatSN);
-      navigation.navigate(routes.STORY, {
-        name: name,
-        author: author,
-        cover: cover,
-      });
-    }
+    if (storyStatus?.continueStory) {
+      // setCurrentStory(story);
+      // setCurrentBackIdx(backSN);
+      // setCurrentChatIdx(chatSN);
+      navigation.navigate(routes.STORY, storyPayload);
+    } else
+      navigation.navigate(routes.STORY,storyPayload);
   };
-
-  // Object {
-  //   "default": Array [
-  //     Object {
-  //       "backImg": 20,
-  //       "backSN": 1,
-  //       "chats": Array [
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
+      <Pressable
+        style={styles.container}
         onPress={() => {
-          // 如果是主畫面
-          if (cont === null) {
-            // 如果這本故事有繼續觀看
-            if (story) {
+          if (noChapter) {
+            if (isReadFree)
               Alert.alert(
-                "故事將從頭開始",
-                "請選擇前往繼續觀看頁面，或從頭開始閱讀",
+                main_menu_title,
+                main_menu_content,
                 [
                   {
-                    text: "從頭開始",
-                    onPress: () => goToStory(),
+                    text: main_menu_btn_left ?? '繼續閱讀',
+                    onPress: goToStory,
                   },
                   {
-                    text: "繼續觀看",
-                    onPress: () => navigation.navigate(routes.CONTINUE),
+                    text: main_menu_btn_right ?? '重新再來',
+                    onPress: () =>
+                      navigation.navigate(routes.STORY, storyPayload),
                   },
                 ],
                 {
                   cancelable: true,
                 }
               );
-            }
+            else return;
           } else {
-            // 如果不是主畫面就直接進去故事
-            goToStory();
+            navigation.navigate(routes.CHAPTER, { name, author });
           }
         }}
       >
         {ready && (
           <>
-            {cont === true ? (
+            {storyStatus?.continueStory ? (
               // 繼續觀看
               <View>
                 <Image
                   style={styles.coverIcon}
-                  source={require("../../../assets/continue.png")}
+                  source={require('../../../assets/continue.png')}
                 />
-                <Image style={[styles.img, padImgStyle]} source={image} />
+                <Image
+                  style={[styles.img, padImgStyle]}
+                  source={image}
+                  // source={{
+                  //   uri: imageUri,
+                  // }}
+                />
               </View>
-            ) : cont === false ? (
+            ) : storyStatus?.finishStory ? (
               // 重新回味
               <View>
                 <Image
                   style={styles.coverIcon}
-                  source={require("../../../assets/reload.png")}
+                  source={require('../../../assets/reload.png')}
                 />
-                <Image style={[styles.img, padImgStyle]} source={image} />
+                <Image
+                  style={[styles.img, padImgStyle]}
+                  // source={image}
+
+                  source={{ uri: imageUri }}
+                />
               </View>
             ) : (
               // 一般畫面
               <View>
-                <Image style={[styles.img, padImgStyle]} source={image} />
+                {!isReadFree && noChapter ? (
+                  <View style={styles.lock}>
+                    <Image
+                      style={styles.lockIcon}
+                      source={require('../../../assets/lock.png')}
+                    />
+                  </View>
+                ) : null}
+                <Image
+                  style={[styles.img, padImgStyle]}
+                  // source={{ uri: imageUri }}
+                  source={image}
+                />
               </View>
             )}
             <View style={styles.nameContainer}>
-              <AppText style={styles.name}>{name}</AppText>
+              <AppText
+                style={[
+                  styles.name,
+                  {
+                    fontSize: 15 ?? +main_menu_font_size,
+                    color: main_menu_color ?? '',
+                    fontWeight: main_menu_weight === '粗' ? 'bold' : 'normal',
+                  },
+                ]}
+              >
+                {name}
+              </AppText>
             </View>
           </>
         )}
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 }
@@ -147,7 +191,7 @@ const styles = StyleSheet.create({
   },
   nameContainer: {
     marginTop: 5,
-    alignItems: "center",
+    alignItems: 'center',
   },
   name: {
     fontSize: 20,
@@ -158,11 +202,28 @@ const styles = StyleSheet.create({
     height: 220,
   },
   coverIcon: {
-    position: "absolute",
+    position: 'absolute',
     zIndex: 1,
     marginLeft: 55,
     marginTop: 95,
-    // color: colors.light,
+  },
+  lockIcon: {
+    width: 20,
+    height: 20,
+  },
+  lock: {
+    position: 'absolute',
+    zIndex: 1,
+    top: wp('22%'),
+    left: wp('15%'),
+    width: 30,
+    height: 30,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#fff',
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

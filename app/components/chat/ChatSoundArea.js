@@ -1,16 +1,16 @@
-import React, { useEffect } from "react";
-import { View, StyleSheet, TouchableOpacity, Image } from "react-native";
-import { Audio } from "expo-av";
+import React, { useEffect } from 'react';
+import { View, StyleSheet, Pressable, Image } from 'react-native';
+import { Audio } from 'expo-av';
 
 function ChatSoundArea({ soundMsg, backgroundColor }) {
   const [sound, setSound] = React.useState();
 
   async function playSound() {
-    console.log("Loading Sound");
+    console.log('Loading Sound');
     const { sound } = await Audio.Sound.createAsync(soundMsg);
     setSound(sound);
 
-    console.log("Playing Sound");
+    console.log('Playing Sound');
     await sound.playAsync();
   }
 
@@ -24,7 +24,7 @@ function ChatSoundArea({ soundMsg, backgroundColor }) {
     return () => {
       setTimeout(() => {
         try {
-          console.log("Unloading Sound");
+          console.log('Unloading Sound');
           sound.unloadAsync();
         } catch {}
       }, 40000);
@@ -32,7 +32,7 @@ function ChatSoundArea({ soundMsg, backgroundColor }) {
   }, [sound]);
 
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={() => {
         playSound();
       }}
@@ -40,21 +40,21 @@ function ChatSoundArea({ soundMsg, backgroundColor }) {
       <View style={[styles.container, backgroundColor]}>
         <Image
           style={styles.img}
-          source={require("../../../assets/play.png")}
+          source={require('../../../assets/play.png')}
         />
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    alignSelf: "flex-start",
+    alignSelf: 'flex-start',
     padding: 10,
     borderRadius: 15,
   },
   text: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   img: {
     width: 130,

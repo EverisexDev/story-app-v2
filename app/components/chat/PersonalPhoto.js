@@ -1,15 +1,15 @@
-import React, { useContext } from "react";
-import { View, StyleSheet, Image, TouchableOpacity, Alert } from "react-native";
-import StoryContext from "../story/context";
+import React, { useContext } from 'react';
+import { View, StyleSheet, Image, Pressable, Alert } from 'react-native';
+import StoryContext from '../story/context';
 
-import AppText from "../AppText";
+import AppText from '../AppText';
 
 function PersonalPhoto({ photo, name, nameColor }) {
   const { currentChatIdx, setCurrentChatIdx } = useContext(StoryContext);
-  const intro = require("../../../assets/story/Gone/profile/intro");
+  const intro = require('../../../assets/story/Gone/profile/intro');
 
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={() => {
         const introToShow = intro.default.filter((i) => i.name === name)[0]
           ?.intro;
@@ -26,14 +26,14 @@ function PersonalPhoto({ photo, name, nameColor }) {
           {name}
         </AppText>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     marginHorizontal: 10,
-    alignItems: "center",
+    alignItems: 'center',
   },
   img: {
     width: 50,
@@ -42,8 +42,8 @@ const styles = StyleSheet.create({
   },
   nameText: {
     fontSize: 15,
-    color: "#000",
-    fontWeight: "500",
+    color: '#000',
+    fontWeight: '500',
   },
 });
 

@@ -34,7 +34,7 @@ function ReviewScreen() {
           )}
           <FlatList
             data={finishStorys}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item?.id?.toString()}
             numColumns={2}
             renderItem={({ item }) => (
               <Book

@@ -7,6 +7,7 @@ export default Object.freeze({
   CON_RE_TOPTAB: " ",
 
   MAIN: "主畫面",
+  CHAPTER: "Chapter",
   STORY: "Story",
   IMAGE: "Image",
 });

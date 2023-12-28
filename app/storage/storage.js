@@ -17,7 +17,7 @@ const storeStory = async (story, storeKey) => {
     } else {
       // 找到故事名稱一樣的index
       let _value = JSON.parse(value);
-      let idx = _value.findIndex((v) => v.name === story.name);
+      const idx = _value.findIndex((v) => v.name === story.name);
 
       // 如果沒找到就是還沒有存這個故事，所以要push
       idx === -1
@@ -37,7 +37,7 @@ const getStorys = async (storeKey) => {
   try {
     const value = await AsyncStorage.getItem(storeKey);
     // console.log("@@@@@@@", JSON.parse(value));
-    return value != null ? JSON.parse(value) : null;
+    return value !== null ? JSON.parse(value) : null;
   } catch (error) {
     console.log(error);
   }

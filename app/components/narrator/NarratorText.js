@@ -15,8 +15,8 @@ function NarratorText({ textMsg, fontStyle }) {
       }}
     >
       <View style={styles.container}>
-        {textMsg.map((content) => (
-          <AppText key={content.id} style={[styles.text, fontStyle]}>
+        {textMsg.map((content, i) => (
+          <AppText key={content.id} style={[styles.text, fontStyle]} key={i}>
             {content.text}
           </AppText>
         ))}
