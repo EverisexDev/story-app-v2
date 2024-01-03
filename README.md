@@ -237,7 +237,7 @@ http://api.xstudio-mclub.url.tw/api/v1/admin/role/{storyid}
 |  role_foolproof_title  |  string  |    標題    |
 | role_foolproof_content |  string  |    按鈕    |
 
-### 章節-防呆視窗參數設定
+### 場次內容管理
 
 ```
 All:
