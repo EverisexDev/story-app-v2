@@ -1,3 +1,6 @@
+
+### Api
+
 # 會員
 
 #### 會員清單(/admin/member)
@@ -29,13 +32,13 @@ All:
 http://api.xstudio-mclub.url.tw/api/v1/admin/purchasehistory
 
 FindOne:
-http://api.xstudio-mclub.url.tw/api/v1/admin/purchasehistory/{menberid}
+http://api.xstudio-mclub.url.tw/api/v1/admin/purchasehistory/{memberId}
 
 ```
 
 |     項目     | 資料類型 |   欄位   |
 | :----------: | :------: | :------: |
-|   menberid   |  number  | 會員編號 |
+|   memberId   |  number  | 會員編號 |
 |  order_num   |  number  | 訂單編號 |
 |  order_time  |  string  | 訂購時間 |
 | product_name |  string  | 商品名稱 |
@@ -47,13 +50,13 @@ http://api.xstudio-mclub.url.tw/api/v1/admin/purchasehistory/{menberid}
 All:
 http://api.xstudio-mclub.url.tw/api/v1/admin/subscriptionrecord
 FindOne:
-http://api.xstudio-mclub.url.tw/api/v1/admin/subscriptionrecord/{menberid}
+http://api.xstudio-mclub.url.tw/api/v1/admin/subscriptionrecord/{memberId}
 
 ```
 
 |      項目      | 資料類型 |     欄位     |
 | :------------: | :------: | :----------: |
-|    menberid    |  number  |   會員編號   |
+|    memberId    |  number  |   會員編號   |
 |    sub_num     |  number  |   訂閱編號   |
 | sub_start_time |  string  | 訂閱開始時間 |
 |  sub_end_time  |  string  | 訂閱結束時間 |
@@ -282,24 +285,27 @@ http://api.xstudio-mclub.url.tw/api/v1/admin/story-list/{id}
 
 ```
 
-|        項目         | 資料類型 |         欄位         |
-| :-----------------: | :------: | :------------------: |
-|        lang         |  string  |         語系         |
-|        order        |  string  |         順序         |
-|   main_menu_image   |  string  |   主選單的故事首圖   |
-|   main_menu_title   |  string  |   主選單的故事標題   |
-|  main_menu_content  |   text   | 主選單的防呆視窗內容 |
-| main_menu_btn_left  |  string  | 主選單防呆視窗選項左 |
-| main_menu_btn_right |  string  | 主選單防呆視窗選項右 |
-|     open_or_off     |  string  |       是否公開       |
-|     stroy_name      |  string  |       故事名稱       |
-|       author        |  string  |       作者名稱       |
-|     story_infor     |  string  |       故事簡介       |
-|     story_type      |  string  |       故事類別       |
-|        price        |  string  |       單本定價       |
-|        open         |  string  |       是否公開       |
-|     view_times      |  string  |       觀看次數       |
-|      buy_times      |  string  |       購買次數       |
+|         項目          | 資料類型 |              欄位              |
+| :-------------------: | :------: | :----------------------------: |
+|         lang          |  string  |              語系              |
+|         order         |  string  |              順序              |
+|    main_menu_name     |  string  |        主選單的故事名稱        |
+|  main_menu_name_size  |  string  |      主選單的故事名稱大小      |
+| main_menu_name_weight |  string  |      主選單的故事名稱粗細      |
+| main_menu_name_color  |  string  |      主選單的故事名稱顏色      |
+|    main_menu_image    |  string  |        主選單的故事首圖        |
+|    main_menu_title    |  string  |        主選單的故事標題        |
+|   main_menu_content   |   text   | 故事簡介(主選單防呆視窗的內容) |
+|  main_menu_btn_left   |  string  |      主選單防呆視窗選項左      |
+|  main_menu_btn_right  |  string  |      主選單防呆視窗選項右      |
+|      open_or_off      |  string  |            是否公開            |
+|      stroy_name       |  string  |            故事名稱            |
+|        author         |  string  |            作者名稱            |
+|      story_type       |  string  |            故事類別            |
+|         price         |  string  |            單本定價            |
+|         open          |  string  |            是否公開            |
+|      view_times       |  string  |            觀看次數            |
+|       buy_times       |  string  |            購買次數            |
 
 #### 故事角色管理
 
