@@ -196,7 +196,7 @@ http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story-role/{id}
 
 ```
 
-```
+
 
 |         項目          | 資料類型 |       欄位       |
 | :-------------------: | :------: | :--------------: |
@@ -211,7 +211,7 @@ http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story-role/{id}
 | boy_Supporting_Color  |  string  | 男配角對話框底色 |
 | girl_Supporting_Color |  string  | 女配角對話框底色 |
 
-```
+
 
 #### 故事角色 -防呆視窗
 
@@ -223,7 +223,7 @@ http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story-role-foolproof/{id}
 
 ```
 
-```
+
 
 |         項目          | 資料類型 |       欄位       |
 | :-------------------: | :------: | :--------------: |
@@ -237,7 +237,6 @@ http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story-role-foolproof/{id}
 |    setup_story_role_foolproof_weight     |  string  |   視窗按鈕文字粗細   |
 |    setup_story_role_foolproof_color     |  string  |   視窗按鈕文字顏色   |
 
-```
 
 ## 一般內容管理
 
