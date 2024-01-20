@@ -4,7 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import IconButton from "./IconButton";
 import colors from "../config/colors";
 
-function AppCloseX() {
+function AppCloseX({onPress}) {
   const navigation = useNavigation();
 
   return (
@@ -15,7 +15,8 @@ function AppCloseX() {
           size={35}
           iconSize={35}
           iconColor="#fff"
-          onPress={() => navigation.goBack()}
+          onPress={onPress}
+          // onPress={() => navigation.goBack()}
         />
       </View>
     </View>

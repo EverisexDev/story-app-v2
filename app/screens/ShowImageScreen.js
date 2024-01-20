@@ -10,7 +10,7 @@ function ShowImageScreen({ route }) {
     <>
       <AppCloseX />
       <View style={styles.container}>
-        <Image source={img} style={{ width: img.width }} />
+        <Image source={{uri: img}} style={{ width: img.width }} />
       </View>
     </>
   );

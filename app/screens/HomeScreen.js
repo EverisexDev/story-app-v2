@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, FlatList } from 'react-native';
+import { View, FlatList, Platform } from 'react-native';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import axios from 'axios';
-
+import { intersectionBy } from 'lodash';
 import Screen from './Screen';
 import Content from './Content';
 
@@ -11,6 +11,7 @@ import Books from '../components/Book/Books';
 import routes from '../navigations/routes';
 import AppText from '../components/AppText';
 import storage from '../storage/storage';
+import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 
 function HomeScreen() {
   const [storyInfo, setStoryInfo] = useState({
@@ -18,34 +19,28 @@ function HomeScreen() {
     config: {},
     news: '',
     storyInfo: [],
+    storyList: [],
   });
 
-  const navigation = useNavigation();
-  const isFocused = useIsFocused();
+  const [storyCache, setStoryCache] = useState({
+    finish: null,
+    continue: null,
+  });
 
   const renderItem = ({ item }) => (
     <Books
       type={item}
       config={storyInfo.config[0]}
       nochapter={storyInfo?.nochapter}
-      storyStatus={storyStatus}
+      storyCache={storyCache}
+      storyList={storyInfo?.storyList}
     />
   );
 
-  const storyStatus = useMemo(() => {
-    async function getStorys() {
-      const finishStory = await storage.getStorys('finishStory');
-      const continueStory = await storage.getStorys('continueStory');
-      return { finishStory, continueStory };
-    }
-    return getStorys();
-  }, []);
-
   useEffect(() => {
-    // navigation.navigate(routes.CONTINUE);
     const fetchData = async () => {
       try {
-        const menuConf = await axios.get(
+        const config = await axios.get(
           'http://api.xstudio-mclub.url.tw/api/v1/admin/menu'
         );
         const newsData = await axios.get(
@@ -57,46 +52,53 @@ function HomeScreen() {
         const nochapter = await axios.get(
           `http://api.xstudio-mclub.url.tw/api/v1/admin/nochapter`
         );
+        const storyList = await axios.get(
+          `http://api.xstudio-mclub.url.tw/api/v1/admin/story-list`
+        );
 
         setStoryInfo({
           type: type?.data ?? [],
-          config: menuConf?.data ?? [],
+          config: config?.data ?? [],
           news: newsData?.data?.[0]?.news_content ?? '',
           nochapter: nochapter?.data ?? [],
+          storyList: storyList?.data ?? [],
         });
-        // if (response?.data && Array.isArray(response.data)) {
-        //   // const storyTypes = response.data[0];
-        //   // setStoryList(response?.data ?? []);
-        // } else {
-        //   throw new Error('API 請求成功，但未返回預期的數據');
-        // }
       } catch (error) {
         console.error('API 請求失敗：', error);
       }
     };
-
+    async function getStories() {
+      const finishStory = await storage.getStorys('finishStory');
+      const continueStory = await storage.getStorys('continueStory');
+      setStoryCache({ finishStory, continueStory });
+    }
     fetchData();
+    getStories();
   }, []);
-
   return (
-    <Screen>
+    <Screen style={{ backgroundColor: storyInfo.config?.[0]?.view_color }}>
       <View
         style={{
           flexDirection: 'row',
           justifyContent: 'flex-start',
           alignItems: 'center',
+          paddingTop: wp('5%'),
+          // width:200
         }}
       >
         <AppHeader />
         <AppText
           style={{
+            flex: 1,
+            flexWrap: 'wrap',
             color: storyInfo.config?.[0]?.news_color ?? '#fff',
             marginLeft: 20,
-            fontSize: 15 ?? storyInfo.config?.[0]?.news_font_size,
-            fontWeight:
-              storyInfo.config?.[0]?.news_weight === '粗' ? 'bold' : 'normal',
+            fontSize: storyInfo.config?.[0]?.news_font_size ?? 20,
+            ...(storyInfo.config?.[0]?.news_weight === '粗' && {
+              fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
+            }),
           }}
-          numberOfLines={1}
+          // numberOfLines={1}
         >
           最新消息：{storyInfo.news}
         </AppText>
@@ -106,6 +108,7 @@ function HomeScreen() {
           data={storyInfo.type}
           keyExtractor={(item) => item?.id?.toString()}
           renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
         />
       </Content>
     </Screen>

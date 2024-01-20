@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -6,6 +6,7 @@ import {
   Image,
   Dimensions,
   Alert,
+  Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Asset } from 'expo-asset';
@@ -19,166 +20,166 @@ import {
 } from 'react-native-responsive-screen';
 const screenWidth = Dimensions.get('window').width;
 
-function Book({
-  main_menu_name: name,
-  main_menu_font_size = '',
-  main_menu_color = '',
-  main_menu_image = '',
-  main_menu_weight = '',
-  main_menu_btn_left,
-  main_menu_btn_right,
-  main_menu_content = '',
-  main_menu_title = '',
-  noChapter = null,
-  storyStatus = '',
-  author = '',
-  backSN = 0,
-  chatSN = -1,
-}) {
+function Book(props) {
+  const { storyData = {}, storyCache = {}, nochapter, view_color=''} = props;
+  const {
+    main_menu_name,
+    main_menu_font_size = '',
+    main_menu_color = '',
+    main_menu_image = '',
+    main_menu_weight = '',
+    main_menu_btn_left,
+    main_menu_btn_right,
+    main_menu_content = '',
+    main_menu_title = '',
+    open = '',
+    chapter_type = '',
+    author = '',
+    id = 1,
+    lang,
+  } = storyData;
   const navigation = useNavigation();
-  const [ready, setReady] = useState(false);
-  const isReadFree = noChapter?.read_free === '開放' ?? false;
-  const img = require('../../../assets/story/cover/C1-1.jpg');
-
-  const imageUri = 'http://api.xstudio-mclub.url.tw/' + main_menu_image;
-  const [image, setImage] = useState(Asset.fromModule(img ?? imageUri));
-  const { setCurrentStory, setCurrentBackIdx, setCurrentChatIdx } =
-    useContext(StoryContext);
+  const imageUri =
+    'http://api.xstudio-mclub.url.tw/images/update/' + main_menu_image;
+  const hasChapter = chapter_type === '章節' ?? false;
+  const isOpen = open === '公開' ?? false;
 
   const padImgStyle = screenWidth > 500 ? { width: 225, height: 330 } : {};
 
-  useEffect(() => {
-    // screenWidth > 500 ? resizeImage() : setReady(true);
-    resizeImage();
-  }, []);
+  const chapter = useMemo(() => {
+    return nochapter?.find((e) => e.storyId === id);
+  }, [nochapter]);
 
-  const resizeImage = () => {
-    const resizeRate =
-      screenWidth > 500 ? (screenWidth * 0.6) / image.width : 256 / image.width;
-    const newImage = {
-      ...image,
-      width: screenWidth > 500 ? screenWidth * 0.6 : 256,
-      height: image.height * resizeRate,
-    };
-    setImage(newImage);
-    setReady(true);
-  };
+  const storyStatus = useMemo(() => {
+    const read = storyCache?.continueStory?.find((e) => +e.storyId === +id);
+    const finish = storyCache?.finishStory?.find((e) => +e.storyId === +id);
+    return { read, finish };
+  }, [storyCache]);
 
-  const storyPayload =  {
-    name,
-    cover: main_menu_image,
+  const storyPayload = {
+    name: main_menu_name,
     author,
-    // storyId: storyid,
-    // chapterId: id,
-  }
-
-  const goToStory = () => {
-    // 如果有故事內容，才要跳轉頁面
-    if (storyStatus?.continueStory) {
-      // setCurrentStory(story);
-      // setCurrentBackIdx(backSN);
-      // setCurrentChatIdx(chatSN);
-      navigation.navigate(routes.STORY, storyPayload);
-    } else
-      navigation.navigate(routes.STORY,storyPayload);
+    storyId: id,
+    chapterId: chapter?.id,
+    storyData,
+    nochapter,
   };
+
+  if (lang !== '繁體中文') return;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container]}>
       <Pressable
         style={styles.container}
         onPress={() => {
-          if (noChapter) {
-            if (isReadFree)
-              Alert.alert(
-                main_menu_title,
-                main_menu_content,
-                [
-                  {
-                    text: main_menu_btn_left ?? '繼續閱讀',
-                    onPress: goToStory,
-                  },
-                  {
-                    text: main_menu_btn_right ?? '重新再來',
-                    onPress: () =>
-                      navigation.navigate(routes.STORY, storyPayload),
-                  },
-                ],
+          // navigation.navigate(routes.STORY, storyPayload);
+          // return;
+          if (!isOpen) return;
+          if (storyStatus?.read)
+            Alert.alert(
+              main_menu_title,
+              main_menu_content,
+              [
                 {
-                  cancelable: true,
-                }
-              );
-            else return;
-          } else {
-            navigation.navigate(routes.CHAPTER, { name, author });
+                  text: main_menu_btn_left ?? '繼續閱讀',
+                  onPress: () =>
+                    navigation.navigate(routes.STORY, {
+                      ...storyPayload,
+                      storyId: storyStatus?.read?.storyId ?? id,
+                      chapterId: storyStatus?.read?.chapterId ?? chapter?.id,
+                      screenId: storyStatus?.read?.screenId,
+                    }),
+                },
+                {
+                  text: main_menu_btn_right ?? '重新再來',
+                  onPress: () =>
+                    hasChapter
+                      ? navigation.navigate(routes.CHAPTER, {
+                          name: main_menu_name,
+                          author,
+                          storyId: id,
+                          view_color,
+                        })
+                      : navigation.navigate(routes.STORY, storyPayload),
+                },
+              ],
+              {
+                cancelable: true,
+              }
+            );
+          else {
+            if (hasChapter)
+              navigation.navigate(routes.CHAPTER, {
+                name: main_menu_name,
+                author,
+                storyId: id,
+                view_color,
+              });
+            else navigation.navigate(routes.STORY, storyPayload);
           }
         }}
       >
-        {ready && (
-          <>
-            {storyStatus?.continueStory ? (
-              // 繼續觀看
-              <View>
+        {storyStatus?.read ? (
+          // 繼續觀看
+          <View>
+            <Image
+              style={styles.coverIcon}
+              source={require('../../../assets/continue.png')}
+            />
+            <Image
+              style={[styles.img, padImgStyle]}
+              // source={image}
+              source={{
+                uri: imageUri,
+              }}
+            />
+          </View>
+        ) : storyStatus?.finish ? (
+          // 重新回味
+          <View>
+            <Image
+              style={styles.coverIcon}
+              source={require('../../../assets/reload.png')}
+            />
+            <Image
+              style={[styles.img, padImgStyle]}
+              source={{ uri: imageUri }}
+            />
+          </View>
+        ) : (
+          // 一般畫面
+          <View>
+            {!isOpen ? (
+              <View style={styles.lock}>
                 <Image
-                  style={styles.coverIcon}
-                  source={require('../../../assets/continue.png')}
-                />
-                <Image
-                  style={[styles.img, padImgStyle]}
-                  source={image}
-                  // source={{
-                  //   uri: imageUri,
-                  // }}
-                />
-              </View>
-            ) : storyStatus?.finishStory ? (
-              // 重新回味
-              <View>
-                <Image
-                  style={styles.coverIcon}
-                  source={require('../../../assets/reload.png')}
-                />
-                <Image
-                  style={[styles.img, padImgStyle]}
-                  // source={image}
-
-                  source={{ uri: imageUri }}
-                />
-              </View>
-            ) : (
-              // 一般畫面
-              <View>
-                {!isReadFree && noChapter ? (
-                  <View style={styles.lock}>
-                    <Image
-                      style={styles.lockIcon}
-                      source={require('../../../assets/lock.png')}
-                    />
-                  </View>
-                ) : null}
-                <Image
-                  style={[styles.img, padImgStyle]}
-                  // source={{ uri: imageUri }}
-                  source={image}
+                  style={styles.lockIcon}
+                  source={require('../../../assets/lock.png')}
                 />
               </View>
-            )}
-            <View style={styles.nameContainer}>
-              <AppText
-                style={[
-                  styles.name,
-                  {
-                    fontSize: 15 ?? +main_menu_font_size,
-                    color: main_menu_color ?? '',
-                    fontWeight: main_menu_weight === '粗' ? 'bold' : 'normal',
-                  },
-                ]}
-              >
-                {name}
-              </AppText>
-            </View>
-          </>
+            ) : null}
+            <Image
+              style={[styles.img, padImgStyle]}
+              source={{ uri: imageUri }}
+              // source={image}
+            />
+          </View>
         )}
+        <View style={styles.nameContainer}>
+          <AppText
+            style={[
+              styles.name,
+              {
+                fontSize: main_menu_font_size || 15,
+                color: main_menu_color || '#fff',
+                ...(main_menu_weight === '粗' && {
+                  fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
+                }),
+              },
+            ]}
+          >
+            {main_menu_name}
+          </AppText>
+        </View>
       </Pressable>
     </View>
   );
@@ -208,20 +209,14 @@ const styles = StyleSheet.create({
     marginTop: 95,
   },
   lockIcon: {
-    width: 20,
-    height: 20,
+    width: 40,
+    height: 40,
   },
   lock: {
     position: 'absolute',
     zIndex: 1,
-    top: wp('22%'),
-    left: wp('15%'),
-    width: 30,
-    height: 30,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#fff',
-    borderRadius: 30,
+    width: '100%',
+    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },

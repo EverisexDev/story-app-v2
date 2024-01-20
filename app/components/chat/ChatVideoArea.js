@@ -1,28 +1,31 @@
-import React, { useState, useEffect, useRef } from "react";
-import { View, StyleSheet } from "react-native";
-import { Video } from "expo-av";
-import colors from "../../config/colors";
+import React, { useState, useEffect, useRef } from 'react';
+import { View, StyleSheet, Pressable } from 'react-native';
+import { Video } from 'expo-av';
+import colors from '../../config/colors';
 
 function ChatVideoArea({ videoMsg }) {
   const video = useRef(null);
-  const [status, setStatus] = useState({});
-
-  useEffect(() => {
-    video.current.playAsync();
-  }, []);
+  // const [status, setStatus] = useState({});
+  const videoUrl = 'http://api.xstudio-mclub.url.tw/images/update/' + videoMsg;
 
   return (
+    <Pressable
+      onPress={() => {
+        video.current?.playAsync();
+      }}
+    >
     <View style={styles.container}>
       <Video
         ref={video}
         style={styles.video}
-        source={videoMsg}
+        source={{ uri: videoUrl }}
         useNativeControls
-        resizeMode="contain"
+        resizeMode='contain'
         // isLooping
-        onPlaybackStatusUpdate={(status) => setStatus(() => status)}
+        // onPlaybackStatusUpdate={(status) => setStatus(() => status)}
       />
     </View>
+    </Pressable>
   );
 }
 

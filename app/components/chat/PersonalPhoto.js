@@ -1,27 +1,36 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { View, StyleSheet, Image, Pressable, Alert } from 'react-native';
-import StoryContext from '../story/context';
 
 import AppText from '../AppText';
+const domain = 'http://api.xstudio-mclub.url.tw/images/update/';
 
-function PersonalPhoto({ photo, name, nameColor }) {
-  const { currentChatIdx, setCurrentChatIdx } = useContext(StoryContext);
-  const intro = require('../../../assets/story/Gone/profile/intro');
+function PersonalPhoto(props) {
+  const {
+    role_pic: photo,
+    role_name: name,
+    nameColor,
+    role_infor,
+    role_foolproof_title,
+    role_foolproof_content,
+  } = props;
 
   return (
     <Pressable
       onPress={() => {
-        const introToShow = intro.default.filter((i) => i.name === name)[0]
-          ?.intro;
-        if (introToShow) {
-          Alert.alert(name, introToShow);
-        } else {
-          setCurrentChatIdx(currentChatIdx + 1);
-        }
+        Alert.alert(role_foolproof_title, role_infor, [
+          {
+            text: role_foolproof_content ?? '',
+            cancelable: true,
+          },
+        ]);
       }}
     >
       <View style={styles.container}>
-        <Image fadeDuration={0} style={styles.img} source={photo} />
+        <Image
+          fadeDuration={0}
+          style={styles.img}
+          source={{ uri: domain + photo }}
+        />
         <AppText style={[styles.nameText, { color: nameColor }]}>
           {name}
         </AppText>

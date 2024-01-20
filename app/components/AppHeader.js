@@ -41,6 +41,7 @@ const styles = StyleSheet.create({
     height: 40,
     flexDirection: 'row',
     justifyContent: 'flex-start',
+    alignItems:'center'
   },
   text: {
     fontWeight: 'bold',

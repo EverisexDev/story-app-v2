@@ -1,69 +1,40 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, FlatList, View } from "react-native";
-import { useIsFocused, useNavigation } from "@react-navigation/native";
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, FlatList, View } from 'react-native';
 
-import AppHeader from "../components/AppHeader";
-import Screen from "./Screen";
+import AppHeader from '../components/AppHeader';
+import Screen from './Screen';
 
-import Content from "./Content";
-import AppText from "../components/AppText";
-import storage from "../storage/storage";
-import Book from "../components/Book/Book";
-import colors from "../config/colors";
-import routes from "../navigations/routes";
+import Content from './Content';
+import AppText from '../components/AppText';
+import storage from '../storage/storage';
+import Book from '../components/Book/Book';
+import colors from '../config/colors';
 
 function ContinueScreen() {
-  const [continueStorys, setContinueStorys] = useState("");
-  const navigation = useNavigation();
-  const isFocused = useIsFocused();
+  const [storyCache, setStoryCache] = useState(null);
 
   useEffect(() => {
-    async function getStorys() {
-      let storys = await storage.getStorys("continueStory");
-      setContinueStorys(storys);
+    async function getStories() {
+      const continueStory = await storage.getStorys('continueStory');
+      setStoryCache(continueStory);
     }
-    getStorys();
-  }, [isFocused]);
-
-  useEffect(() => {
-    if (continueStorys !== "") {
-      if (
-        continueStorys === null ||
-        continueStorys === undefined ||
-        continueStorys.length === 0
-      ) {
-        if (isFocused) {
-          navigation.navigate(routes.HOME);
-        }
-      }
-    }
-  }, [continueStorys]);
+    getStories();
+  }, []);
 
   return (
     <Screen>
       <AppHeader />
       <Content>
         <View style={styles.books}>
-          {(continueStorys === null ||
-            continueStorys === undefined ||
-            continueStorys.length === 0) && (
+          {!storyCache ? (
             <AppText style={styles.noBooks}>尚未閱覽任何書籍</AppText>
-          )}
-          {continueStorys !== "" && (
+          ) : (
             <FlatList
-              data={continueStorys}
-              keyExtractor={(item) => item?.id?.toString()}
+              data={storyCache ?? []}
+              keyExtractor={(item) => item?.storyId?.toString()}
               numColumns={2}
               renderItem={({ item }) => (
-                <Book
-                  name={item.name}
-                  author={item.author}
-                  cover={item.cover}
-                  story={item.story}
-                  backSN={item.backSN}
-                  chatSN={item.chatSN}
-                  cont={true}
-                />
+                <Book storyData={item?.storyData} nochapter={item?.nochapter} />
               )}
             />
           )}
@@ -75,12 +46,12 @@ function ContinueScreen() {
 
 const styles = StyleSheet.create({
   books: {
-    alignItems: "flex-start",
+    alignItems: 'flex-start',
   },
   noBooks: {
     color: colors.leftChatBackground,
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
 });
 

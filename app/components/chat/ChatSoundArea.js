@@ -3,29 +3,24 @@ import { View, StyleSheet, Pressable, Image } from 'react-native';
 import { Audio } from 'expo-av';
 
 function ChatSoundArea({ soundMsg, backgroundColor }) {
-  const [sound, setSound] = React.useState();
-
+  const [sound, setSound] = useState();
   async function playSound() {
-    console.log('Loading Sound');
-    const { sound } = await Audio.Sound.createAsync(soundMsg);
-    setSound(sound);
-
-    console.log('Playing Sound');
-    await sound.playAsync();
+    const soundUrl =
+      'http://api.xstudio-mclub.url.tw/images/update/' + soundMsg;
+    await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+    const { _sound } = await Audio.Sound.createAsync(
+      { uri: soundUrl },
+      { shouldPlay: true }
+    );
+    setSound(_sound);
   }
 
   useEffect(() => {
-    // return sound
-    //   ? () => {
-    //       console.log("Unloading Sound");
-    //       sound.unloadAsync();
-    //     }
-    //   : undefined;
     return () => {
       setTimeout(() => {
         try {
           console.log('Unloading Sound');
-          sound.unloadAsync();
+          sound?.unloadAsync();
         } catch {}
       }, 40000);
     };
@@ -33,9 +28,7 @@ function ChatSoundArea({ soundMsg, backgroundColor }) {
 
   return (
     <Pressable
-      onPress={() => {
-        playSound();
-      }}
+      onPress={playSound}
     >
       <View style={[styles.container, backgroundColor]}>
         <Image

@@ -5,6 +5,7 @@ import {
   Alert,
   Image,
   ImageBackground,
+  Platform,
 } from 'react-native';
 import React from 'react';
 import AppText from './AppText';
@@ -21,48 +22,53 @@ const ChapterItem = (props) => {
     chapter_name_size,
     chapter_img,
     chapter_name_weight,
+    chapter_name_color,
     chapter_infor,
     window_title,
     window_btn_left,
     window_btn_right,
     free_open,
-    storyid,
+    storyId,
     id,
     lang,
     toastConfig,
     index,
+    author,
+    storyData,
+    nochapter,
   } = props ?? {};
-  console.log(props);
+  // console.log(props);
   const isFreeOpen = free_open === '開放';
   const navigation = useNavigation();
-  const imageUri = `http://api.xstudio-mclub.url.tw/${chapter_img}`;
+  const imageUri = `http://api.xstudio-mclub.url.tw/images/update/${chapter_img}`;
 
-  // const img = require('../../assets/story/story1/images/real1.jpeg');
   const showAlert = () => {
-    // navigation.navigate(routes.STORY, { storyId: storyid, chapterId: id });
     if (isFreeOpen) {
-      Alert.alert(
-        window_title,
-        chapter_infor,
-        [
-          {
-            text: window_btn_left,
-            onPress: () => navigation.navigate(routes.STORY, { storyId: storyid, chapterId: id }),
-            // style: 'cancel',
-          },
-          {
-            cancelable: true,
-            text: window_btn_right,
-          }
-        ],
-      );
+      Alert.alert(window_title, chapter_infor, [
+        {
+          text: window_btn_left,
+          onPress: () =>
+            navigation.navigate(routes.STORY, {
+              storyId: storyId,
+              chapterId: id,
+              name: chapter_name,
+              author,
+              storyData,
+              nochapter,
+            }),
+        },
+        {
+          text: window_btn_right,
+          cancelable: true,
+        },
+      ]);
     } else return;
   };
 
   if (lang !== '繁體中文') return;
   return (
     <Pressable style={styles.container} onPress={showAlert}>
-      <ImageBackground source={imageUri} style={styles.imgBg}>
+      <ImageBackground source={{ uri: imageUri }} style={styles.imgBg}>
         {!isFreeOpen ? (
           <View style={styles.lock}>
             <Image
@@ -73,11 +79,13 @@ const ChapterItem = (props) => {
         ) : null}
         <AppText
           style={{
-            fontSize: 15 ?? chapter_name_size,
-            fontWeight: chapter_name_weight === '粗' ? 'bold' : 'normal',
-            alignSelf: index % 2 === 0 ? 'flex-end' : 'flex-start',
+            fontSize: chapter_name_size || 20,
+            ...(chapter_name_weight === '粗' && {
+              fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
+            }),
+            alignSelf: index % 2 !== 0 ? 'flex-end' : 'flex-start',
             alignItems: 'flex-end',
-            color: '#fff',
+            color: chapter_name_color || '#fff',
           }}
         >
           {chapter_name}
@@ -97,20 +105,14 @@ const styles = StyleSheet.create({
   },
   imgBg: { width: '100%', height: '100%', justifyContent: 'flex-end' },
   lockIcon: {
-    width: 30,
-    height: 30,
+    width: 40,
+    height: 40,
   },
   lock: {
     position: 'absolute',
-    top: wp('20%'),
-    left: wp('40%'),
     zIndex: 1,
-    width: 40,
-    height: 40,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#fff',
-    borderRadius: 40,
+    width: '100%',
+    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },

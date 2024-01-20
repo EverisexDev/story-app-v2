@@ -1,12 +1,12 @@
-import React from "react";
-import { StatusBar } from "expo-status-bar";
-import { View, StyleSheet, Platform, SafeAreaView } from "react-native";
-import colors from "../config/colors";
+import React from 'react';
+import { StatusBar } from 'expo-status-bar';
+import { View, StyleSheet, Platform, SafeAreaView } from 'react-native';
+import colors from '../config/colors';
 
 function Screen({ children, style }) {
   return (
     <SafeAreaView style={[styles.container, style]}>
-      <StatusBar style="auto" hidden={true} />
+      <StatusBar style='auto' hidden={true} />
       {children}
     </SafeAreaView>
   );
@@ -14,7 +14,7 @@ function Screen({ children, style }) {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: Platform.OS === "android" ? 15 : 47,
+    paddingTop: Platform.OS === 'android' ? 15 : 47,
     flex: 1,
     paddingHorizontal: 10,
     backgroundColor: colors.homeBackground,

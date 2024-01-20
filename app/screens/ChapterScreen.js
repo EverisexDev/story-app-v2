@@ -13,20 +13,28 @@ const ChapterScreen = () => {
   });
   const routes = useRoute();
 
-  const { name, author } = useMemo(
-    () => routes.params ?? { name: '', author: '' },
+  const { name, author, storyId, storyData, nochapter, view_color } = useMemo(
+    () => routes.params ?? { name: '', author: '', storyId: 1 },
     [routes.params]
   );
-console.log({ name, author } )
+
   const renderItem = ({ item, index }) => (
-    <ChapterItem {...item} toastConfig={queryInfo?.toastConfig} index={index} />
+    <ChapterItem
+      {...item}
+      toastConfig={queryInfo?.toastConfig}
+      index={index}
+      storyId={storyId}
+      author={author}
+      storyData={storyData}
+      nochapter={nochapter}
+    />
   );
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const chapterList = await axios.get(
-          'http://api.xstudio-mclub.url.tw/api/v1/admin/chapter'
+          `http://api.xstudio-mclub.url.tw/api/v1/admin/chapter/${storyId}`
         );
         const toastConfig = await axios.get(
           'http://api.xstudio-mclub.url.tw/api/v1/admin/setup-chapter-foolproof'
@@ -48,13 +56,14 @@ console.log({ name, author } )
 
     fetchData();
   }, []);
+
   return (
-    <View>
+    <View style={{ flex: 1, backgroundColor: view_color ?? '#fff' }}>
       <View
         style={{
           flexDirection: 'row',
           justifyContent: 'space-between',
-          flex: 1,
+          padding: 10,
         }}
       >
         <AppText>{name}</AppText>
@@ -63,10 +72,8 @@ console.log({ name, author } )
       <FlatList
         data={queryInfo?.listData}
         keyExtractor={(item) => item?.id?.toString()}
-        // horizontal={true}
         renderItem={renderItem}
         contentContainerStyle={{ flexDirection: 'column', padding: 20 }}
-        // ItemSeparatorComponent={() => <View style={{ height: 20, width:300 }}></View>}
       />
     </View>
   );

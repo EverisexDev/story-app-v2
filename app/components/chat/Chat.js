@@ -1,124 +1,135 @@
-import React, { useContext } from "react";
-import { View, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import React, { useContext, useMemo } from 'react';
+import { View, StyleSheet, Pressable } from 'react-native';
 
-import colors from "../../config/colors";
-import StoryContext from "../story/context";
-import ChatImageArea from "./ChatImageArea";
-import ChatSoundArea from "./ChatSoundArea";
+import colors from '../../config/colors';
+import StoryContext from '../story/context';
+import ChatImageArea from './ChatImageArea';
+import ChatSoundArea from './ChatSoundArea';
 
-import ChatTextArea from "./ChatTextArea";
-import ChatVideoArea from "./ChatVideoArea";
-import PersonalPhoto from "./PersonalPhoto";
+import ChatTextArea from './ChatTextArea';
+import ChatVideoArea from './ChatVideoArea';
+import PersonalPhoto from './PersonalPhoto';
 
 function Chat({
-  photo,
-  name,
+  textContentColor,
+  textContentWeight,
+  textContentSize,
+  textContentBaseColor,
   textMsg,
   soundMsg,
   imgMsg,
   videoMsg,
-  direction,
-  leftBackColor,
+  role,
+  roleName,
 }) {
-  const { currentStory, currentBackIdx, currentChatIdx, setCurrentChatIdx } =
-    useContext(StoryContext);
+  const roleData = useMemo(() => {
+    return role?.find((e) => e?.role_name?.trim() === roleName?.trim());
+  }, [role]);
 
   const LeftOrRight = () => {
-    if (direction === "L") {
+    if (role !== '主角') {
       return (
         <View style={styles.chatLeft}>
           <PersonalPhoto
-            photo={photo}
-            name={name}
-            nameColor={currentStory.default[currentBackIdx].nameColorL}
+            photo={roleData?.role_pic}
+            name={roleData?.role_name}
+            nameColor={'#000'}
+            {...roleData}
           />
-          {textMsg && (
+          {textMsg ? (
             <ChatTextArea
               textMsg={textMsg}
               backgroundColor={
-                leftBackColor
-                  ? { backgroundColor: leftBackColor }
+                textContentBaseColor
+                  ? { backgroundColor: textContentBaseColor }
                   : styles.leftBackground
               }
-              // chatIdx={chatIdx}
-              // setChatIdx={setChatIdx}
+              style={{
+                fontSize: textContentSize || 20,
+                color: textContentColor || '#fff',
+                ...(textContentWeight === '粗' && {
+                  fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
+                }),
+              }}
             />
-          )}
-          {soundMsg && (
+          ) : null}
+          {soundMsg ? (
             <ChatSoundArea
               soundMsg={soundMsg}
               backgroundColor={
-                leftBackColor
-                  ? { backgroundColor: leftBackColor }
+                textContentBaseColor
+                  ? { backgroundColor: textContentBaseColor }
                   : styles.leftBackground
               }
             />
-          )}
-          {imgMsg && (
+          ) : null}
+          {imgMsg ? (
             <ChatImageArea
               imgMsg={imgMsg}
               backgroundColor={styles.imgBackground}
             />
-          )}
-          {videoMsg && <ChatVideoArea videoMsg={videoMsg} />}
+          ) : null}
+          {videoMsg ? <ChatVideoArea videoMsg={videoMsg} /> : null}
         </View>
       );
     } else {
       return (
         <View style={styles.chatRight}>
-          {textMsg && (
+          {textMsg ? (
             <ChatTextArea
               textMsg={textMsg}
               backgroundColor={styles.rightBackground}
               // chatIdx={chatIdx}
               // setChatIdx={setChatIdx}
             />
-          )}
-          {soundMsg && (
+          ) : null}
+          {soundMsg ? (
             <ChatSoundArea
               soundMsg={soundMsg}
               backgroundColor={styles.rightBackground}
             />
-          )}
-          {imgMsg && (
+          ) : null}
+          {imgMsg ? (
             <ChatImageArea
               imgMsg={imgMsg}
               backgroundColor={styles.imgBackground}
             />
-          )}
-          {videoMsg && <ChatVideoArea videoMsg={videoMsg} />}
+          ) : null}
+          {videoMsg ? <ChatVideoArea videoMsg={videoMsg} /> : null}
           <PersonalPhoto
-            photo={photo}
-            name={name}
-            nameColor={currentStory.default[currentBackIdx].nameColorR}
+            photo={roleData?.role_pic}
+            name={roleData?.role_name}
+            nameColor={'#000'}
           />
         </View>
       );
     }
   };
   return (
-    <TouchableWithoutFeedback
-      onPress={() => {
-        if (!videoMsg) {
-          setCurrentChatIdx(currentChatIdx + 1);
-        }
-      }}
-    >
-      {LeftOrRight()}
-    </TouchableWithoutFeedback>
+    // <Pressable
+    //   onPress={() => {
+    //     if (!videoMsg) {
+    //       console.log('chat')
+    //       onPressStory && onPressStory(index)
+    //       // setCurrentChatIdx(currentChatIdx + 1);
+    //     }
+    //   }}
+    // >
+    <LeftOrRight />
+    // </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   chatLeft: {
-    flexDirection: "row",
+    flexDirection: 'row',
     paddingVertical: 5,
     // backgroundColor: colors.danger,
   },
   chatRight: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "flex-start",
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'flex-start',
     paddingVertical: 5,
     // backgroundColor: colors.danger,
   },

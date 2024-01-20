@@ -1,68 +1,47 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, StyleSheet, FlatList, Platform } from 'react-native';
 import colors from '../../config/colors';
 import AppText from '../AppText';
 import Book from './Book';
-import axios from 'axios';
 
-function Books({ type, config, nochapter, storyStatus }) {
-  const [storyList, setStoryList] = useState();
+function Books({ type, config, storyList, storyCache, nochapter }) {
+  const {
+    story_type_size = 20,
+    story_type_color = '#fff',
+    story_type_weight = '',
+  } = config;
 
-  const renderItem = ({ item }) => (
-    <Book
-      {...item}
-      config={config}
-      noChapter={noChapter}
-      storyStatus={storyStatus}
-    />
+  
+  const renderItem = ({ item }) => <Book storyData={item} storyCache={storyCache} nochapter={nochapter} view_color={config?.view_color}/>;
+
+  const listData = useMemo(
+    () => storyList.filter((e) => e?.story_type === type?.story_type),
+    [storyList]
   );
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // if (type?.lang === '繁體中文') {
-          const story = await axios.get(
-            `http://api.xstudio-mclub.url.tw/api/v1/admin/main-menu/${type?.id}`
-          );
-          const storyList = await axios.get(
-            `http://api.xstudio-mclub.url.tw/api/v1/admin/story-list/${type?.id}`
-          );
-          // ...storyList?.data
-          const menu = [{...story?.data,...storyList?.data }];
-          // const menu = story?.data ? [story?.data] : [];
-          // const list = storyList?.data ? [storyList?.data] : [];
-          setStoryList(menu);
-        // }
-
-        // if (storyList?.data && Array.isArray(storyList.data)) {
-        // } else {
-        //   throw new Error('API 請求成功，但未返回預期的數據');
-        // }
-      } catch (error) {
-        console.error('API 請求失敗：', error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  const noChapter = useMemo(() => {
-    if (!nochapter) return null;
-    return nochapter?.find((e) => {
-      return +e.storyid === +storyList?.[0]?.id;
-    });
-  }, [storyList, nochapter]);
-  console.log(storyList);
+  if (!listData?.length || type?.lang !== '繁體中文') return;
+  
   return (
     <View style={styles.container}>
       {!storyList?.length ? null : (
         <>
-          <AppText style={styles.type}>{type?.story_type}</AppText>
+          <AppText
+            style={{
+              fontSize: story_type_size ?? 20,
+              color: story_type_color ?? colors.leftChatBackground,
+              ...(story_type_weight === '粗' && {
+                fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
+              }),
+            }}
+          >
+            {type?.story_type}
+          </AppText>
           <FlatList
-            data={storyList}
+            data={listData}
             keyExtractor={(item) => item?.id?.toString()}
             horizontal={true}
             renderItem={renderItem}
+            showsHorizontalScrollIndicator={false}
           />
         </>
       )}
