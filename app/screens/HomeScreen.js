@@ -82,7 +82,7 @@ function HomeScreen() {
           flexDirection: 'row',
           justifyContent: 'flex-start',
           alignItems: 'center',
-          paddingTop: wp('5%'),
+          // paddingTop: wp('5%'),
           // width:200
         }}
       >
@@ -100,7 +100,7 @@ function HomeScreen() {
           }}
           // numberOfLines={1}
         >
-          最新消息：{storyInfo.news}
+          {storyInfo.news}
         </AppText>
       </View>
       <Content>

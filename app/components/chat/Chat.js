@@ -2,7 +2,6 @@ import React, { useContext, useMemo } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 
 import colors from '../../config/colors';
-import StoryContext from '../story/context';
 import ChatImageArea from './ChatImageArea';
 import ChatSoundArea from './ChatSoundArea';
 
@@ -21,10 +20,13 @@ function Chat({
   videoMsg,
   role,
   roleName,
+  roleList,
+  roleConf,
 }) {
   const roleData = useMemo(() => {
-    return role?.find((e) => e?.role_name?.trim() === roleName?.trim());
-  }, [role]);
+    return roleList?.find((e) => e?.role_name?.trim() === roleName?.trim());
+  }, [role, roleList]);
+  console.log(roleConf);
 
   const LeftOrRight = () => {
     if (role !== '主角') {
@@ -33,18 +35,18 @@ function Chat({
           <PersonalPhoto
             photo={roleData?.role_pic}
             name={roleData?.role_name}
-            nameColor={'#000'}
             {...roleData}
+            roleConf={roleConf}
           />
           {textMsg ? (
             <ChatTextArea
               textMsg={textMsg}
               backgroundColor={
-                textContentBaseColor
-                  ? { backgroundColor: textContentBaseColor }
+                roleConf?.boy_Supporting_Color
+                  ? { backgroundColor: roleConf?.boy_Supporting_Color }
                   : styles.leftBackground
               }
-              style={{
+              textStyle={{
                 fontSize: textContentSize || 20,
                 color: textContentColor || '#fff',
                 ...(textContentWeight === '粗' && {
@@ -78,9 +80,18 @@ function Chat({
           {textMsg ? (
             <ChatTextArea
               textMsg={textMsg}
-              backgroundColor={styles.rightBackground}
-              // chatIdx={chatIdx}
-              // setChatIdx={setChatIdx}
+              backgroundColor={
+                roleConf?.main_Role_Name_Color
+                  ? { backgroundColor: roleConf?.main_Role_Name_Color }
+                  : styles.rightBackground
+              }
+              textStyle={{
+                fontSize: textContentSize || 20,
+                color: textContentColor || '#fff',
+                ...(textContentWeight === '粗' && {
+                  fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
+                }),
+              }}
             />
           ) : null}
           {soundMsg ? (
@@ -105,19 +116,7 @@ function Chat({
       );
     }
   };
-  return (
-    // <Pressable
-    //   onPress={() => {
-    //     if (!videoMsg) {
-    //       console.log('chat')
-    //       onPressStory && onPressStory(index)
-    //       // setCurrentChatIdx(currentChatIdx + 1);
-    //     }
-    //   }}
-    // >
-    <LeftOrRight />
-    // </Pressable>
-  );
+  return <LeftOrRight />;
 }
 
 const styles = StyleSheet.create({

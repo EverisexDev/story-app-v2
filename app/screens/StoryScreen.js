@@ -27,6 +27,7 @@ function StoryScreen({ route, navigation }) {
     chapterId = 1,
     author = '',
     name = '',
+    screenId = null,
     storyData = {},
     nochapter = [],
   } = routes.params;
@@ -59,7 +60,7 @@ function StoryScreen({ route, navigation }) {
       viewPosition: 0,
     });
   };
-
+  console.log(screenId);
   useEffect(() => {
     const fetchStories = async () => {
       try {
@@ -122,24 +123,32 @@ function StoryScreen({ route, navigation }) {
         const role = await axios.get(
           `http://api.xstudio-mclub.url.tw/api/v1/admin/role`
         );
-        const content = await axios.get(
-          `http://api.xstudio-mclub.url.tw/api/v1/admin/content/${storyId}/${chapterId}/${screenings?.data?.[0].id}`
+        const roleConf = await axios.get(
+          `http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story-role`
         );
-        const storyContent = content?.data
-          ?.slice()
-          .sort((a, b) => a?.order - b?.order);
+        if (screenId || screenings?.data?.length) {
+          const content = await axios.get(
+            `http://api.xstudio-mclub.url.tw/api/v1/admin/content/${storyId}/${chapterId}/${
+              screenId ?? screenings?.data?.[0].id
+            }`
+          );
+          const storyContent = content?.data
+            ?.slice()
+            .sort((a, b) => a?.order - b?.order);
 
-        setQueryInfo({
-          config: config?.data ?? {},
-          screenings: screenings?.data ?? {},
-          role: role?.data ?? {},
-          content: storyContent,
-          imageUrl: domain + screenings?.data?.[0]?.bg_view,
-        });
-        setIndex((prev) => ({
-          ...prev,
-          screen: 0,
-        }));
+          setQueryInfo({
+            config: config?.data ?? {},
+            screenings: screenings?.data ?? {},
+            role: role?.data ?? {},
+            content: storyContent,
+            imageUrl: domain + screenings?.data?.[screenId ?? 0]?.bg_view,
+            roleConf: roleConf?.data?.[0]
+          });
+          setIndex((prev) => ({
+            ...prev,
+            screen: screenId ?? 0,
+          }));
+        }
       } catch (error) {
         console.error('API 請求失敗：', error);
       }
@@ -214,7 +223,7 @@ function StoryScreen({ route, navigation }) {
   //     setMaxY(e.nativeEvent.contentOffset.y);
   //   }
   // };
-
+  console.log({name})
   return (
     <ImageBackground
       fadeDuration={2000}
@@ -252,8 +261,9 @@ function StoryScreen({ route, navigation }) {
                   imgMsg={item?.graphy}
                   soundMsg={item?.voice}
                   videoMsg={item?.video}
-                  role={queryInfo?.role}
+                  roleList={queryInfo?.role}
                   index={index}
+                  roleConf={queryInfo?.roleConf}
                 />
               ) : (
                 <Narrator

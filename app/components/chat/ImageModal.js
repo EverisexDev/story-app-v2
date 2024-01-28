@@ -8,6 +8,10 @@ import {
   Image,
 } from 'react-native';
 import AppCloseX from '../AppCloseX';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
 
 const ImageModal = (props, ref) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -30,7 +34,7 @@ const ImageModal = (props, ref) => {
         <View style={[styles.container]}>
           <Image
             source={{ uri: props?.imageUrl }}
-            style={{ width: '100%', height: '60%' }}
+            style={{ width: wp('90%'), height: 250 }}
           />
         </View>
       </Modal>

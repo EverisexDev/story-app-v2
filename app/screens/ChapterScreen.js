@@ -27,6 +27,8 @@ const ChapterScreen = () => {
       author={author}
       storyData={storyData}
       nochapter={nochapter}
+      uiConfig={queryInfo?.uiConfig}
+      storyName={name}
     />
   );
 
@@ -39,9 +41,14 @@ const ChapterScreen = () => {
         const toastConfig = await axios.get(
           'http://api.xstudio-mclub.url.tw/api/v1/admin/setup-chapter-foolproof'
         );
+        const uiConfig = await axios.get(
+          'http://api.xstudio-mclub.url.tw/api/v1/admin/setup-chapter'
+        );
+
         setQueryInfo({
           listData: chapterList?.data ?? [],
           toastConfig: toastConfig?.data?.[1] ?? {},
+          uiConfig: uiConfig?.data?.[0] ?? {},
         });
         // if (response?.data && Array.isArray(response.data)) {
         //   // const storyTypes = response.data[0];

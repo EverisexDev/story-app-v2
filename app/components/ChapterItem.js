@@ -36,6 +36,8 @@ const ChapterItem = (props) => {
     author,
     storyData,
     nochapter,
+    uiConfig,
+    storyName,
   } = props ?? {};
   // console.log(props);
   const isFreeOpen = free_open === '開放';
@@ -43,23 +45,32 @@ const ChapterItem = (props) => {
   const imageUri = `http://api.xstudio-mclub.url.tw/images/update/${chapter_img}`;
 
   const showAlert = () => {
+    navigation.navigate(routes.STORY, {
+      storyId: storyId,
+      chapterId: id,
+      name: storyName,
+      author,
+      storyData,
+      nochapter,
+    });
+    return;
     if (isFreeOpen) {
       Alert.alert(window_title, chapter_infor, [
         {
           text: window_btn_left,
+          cancelable: true,
+        },
+        {
+          text: window_btn_right,
           onPress: () =>
             navigation.navigate(routes.STORY, {
               storyId: storyId,
               chapterId: id,
-              name: chapter_name,
+              name: storyName,
               author,
               storyData,
               nochapter,
             }),
-        },
-        {
-          text: window_btn_right,
-          cancelable: true,
         },
       ]);
     } else return;
@@ -67,7 +78,16 @@ const ChapterItem = (props) => {
 
   if (lang !== '繁體中文') return;
   return (
-    <Pressable style={styles.container} onPress={showAlert}>
+    <Pressable
+      style={[
+        styles.container,
+        {
+          borderWidth: +uiConfig?.chapter_outer_weight,
+          borderColor: uiConfig?.chapter_outer_color,
+        },
+      ]}
+      onPress={showAlert}
+    >
       <ImageBackground source={{ uri: imageUri }} style={styles.imgBg}>
         {!isFreeOpen ? (
           <View style={styles.lock}>

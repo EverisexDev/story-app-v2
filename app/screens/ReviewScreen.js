@@ -36,7 +36,7 @@ function ReviewScreen() {
               keyExtractor={(item) => item?.id?.toString()}
               numColumns={2}
               renderItem={({ item }) => (
-                <Book storyData={item?.storyData} nochapter={item?.nochapter} />
+                <Book storyData={item?.storyData} nochapter={item?.nochapter} showReviewIcon={true}/>
               )}
             />
           )}

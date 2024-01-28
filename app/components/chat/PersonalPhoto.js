@@ -1,17 +1,17 @@
 import React from 'react';
-import { View, StyleSheet, Image, Pressable, Alert } from 'react-native';
+import { View, StyleSheet, Image, Pressable, Alert,Platform } from 'react-native';
 
 import AppText from '../AppText';
 const domain = 'http://api.xstudio-mclub.url.tw/images/update/';
 
 function PersonalPhoto(props) {
   const {
-    role_pic: photo,
-    role_name: name,
-    nameColor,
+    photo,
+    name,
     role_infor,
     role_foolproof_title,
     role_foolproof_content,
+    roleConf,
   } = props;
 
   return (
@@ -31,7 +31,18 @@ function PersonalPhoto(props) {
           style={styles.img}
           source={{ uri: domain + photo }}
         />
-        <AppText style={[styles.nameText, { color: nameColor }]}>
+        <AppText
+          style={[
+            styles.nameText,
+            {
+              color: roleConf?.role_name_color,
+              fontSize: roleConf?.role_name_size || 20,
+              ...(roleConf?.role_name_weight === '粗' && {
+                  fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
+                })
+            },
+          ]}
+        >
           {name}
         </AppText>
       </View>

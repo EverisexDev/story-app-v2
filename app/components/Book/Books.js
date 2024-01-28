@@ -10,9 +10,8 @@ function Books({ type, config, storyList, storyCache, nochapter }) {
     story_type_color = '#fff',
     story_type_weight = '',
   } = config;
-
   
-  const renderItem = ({ item }) => <Book storyData={item} storyCache={storyCache} nochapter={nochapter} view_color={config?.view_color}/>;
+  const renderItem = ({ item,index }) => <Book storyData={item} storyCache={storyCache} nochapter={nochapter} view_color={config?.view_color} index={index}/>;
 
   const listData = useMemo(
     () => storyList.filter((e) => e?.story_type === type?.story_type),

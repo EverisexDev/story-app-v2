@@ -5,8 +5,7 @@ import AppText from '../AppText';
 import defaultStyle from '../../config/styles';
 import StoryContext from '../story/context';
 
-function ChatTextArea({ textMsg, backgroundColor ,textStyle}) {
-  // const { currentChatIdx, setCurrentChatIdx } = useContext(StoryContext);
+function ChatTextArea({ textMsg, backgroundColor, textStyle }) {
   const notChinese = /[0-9a-z]/i;
   let points = 0;
 
@@ -29,15 +28,12 @@ function ChatTextArea({ textMsg, backgroundColor ,textStyle}) {
     }
   }
   return (
-    // <Pressable
-    //   onPress={() => {
-    //     setCurrentChatIdx(currentChatIdx + 1);
-    //   }}
-    // >
     <View
       style={[
         styles.container,
-        { width: points >= 26 ? 220 : 200 },
+        {
+          width: points >= 26 ? 220 : undefined,
+        },
         backgroundColor,
       ]}
     >
@@ -45,7 +41,6 @@ function ChatTextArea({ textMsg, backgroundColor ,textStyle}) {
         {textMsg}
       </AppText>
     </View>
-    // </Pressable>
   );
 }
 

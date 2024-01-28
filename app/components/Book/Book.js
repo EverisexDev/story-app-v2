@@ -9,8 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Asset } from 'expo-asset';
-import StoryContext from '../story/context';
+import storage from '../../storage/storage';
 import routes from '../../navigations/routes';
 import AppText from '../AppText';
 import colors from '../../config/colors';
@@ -21,13 +20,21 @@ import {
 const screenWidth = Dimensions.get('window').width;
 
 function Book(props) {
-  const { storyData = {}, storyCache = {}, nochapter, view_color=''} = props;
+  const {
+    storyData = {},
+    storyCache,
+    nochapter,
+    view_color = '',
+    showIcon = false,
+    showReviewIcon,
+    index,
+  } = props;
   const {
     main_menu_name,
-    main_menu_font_size = '',
-    main_menu_color = '',
+    main_menu_name_size = '',
+    main_menu_name_color = '',
     main_menu_image = '',
-    main_menu_weight = '',
+    main_menu_name_weight = '',
     main_menu_btn_left,
     main_menu_btn_right,
     main_menu_content = '',
@@ -72,27 +79,23 @@ function Book(props) {
       <Pressable
         style={styles.container}
         onPress={() => {
-          // navigation.navigate(routes.STORY, storyPayload);
-          // return;
+          navigation.navigate(routes.CHAPTER, {
+                          name: main_menu_name,
+                          author,
+                          storyId: id,
+                          view_color,
+                        })
+          return;
           if (!isOpen) return;
+          if (index === 0) storage.storeStory({ storyId: id }, 'continueStory');
           if (storyStatus?.read)
             Alert.alert(
               main_menu_title,
               main_menu_content,
               [
                 {
-                  text: main_menu_btn_left ?? '繼續閱讀',
-                  onPress: () =>
-                    navigation.navigate(routes.STORY, {
-                      ...storyPayload,
-                      storyId: storyStatus?.read?.storyId ?? id,
-                      chapterId: storyStatus?.read?.chapterId ?? chapter?.id,
-                      screenId: storyStatus?.read?.screenId,
-                    }),
-                },
-                {
-                  text: main_menu_btn_right ?? '重新再來',
-                  onPress: () =>
+                  text: main_menu_btn_left,
+                  onPress: () => {
                     hasChapter
                       ? navigation.navigate(routes.CHAPTER, {
                           name: main_menu_name,
@@ -100,7 +103,18 @@ function Book(props) {
                           storyId: id,
                           view_color,
                         })
-                      : navigation.navigate(routes.STORY, storyPayload),
+                      : navigation.navigate(routes.STORY, storyPayload);
+                  },
+                },
+                {
+                  text: main_menu_btn_right,
+                  onPress: () =>
+                    navigation.navigate(routes.STORY, {
+                      ...storyPayload,
+                      storyId: storyStatus?.read?.storyId ?? id,
+                      chapterId: storyStatus?.read?.chapterId ?? chapter?.id,
+                      screenId: storyStatus?.read?.screenId,
+                    }),
                 },
               ],
               {
@@ -119,7 +133,7 @@ function Book(props) {
           }
         }}
       >
-        {storyStatus?.read ? (
+        {showIcon ? (
           // 繼續觀看
           <View>
             <Image
@@ -134,7 +148,7 @@ function Book(props) {
               }}
             />
           </View>
-        ) : storyStatus?.finish ? (
+        ) : showReviewIcon ? (
           // 重新回味
           <View>
             <Image
@@ -157,11 +171,20 @@ function Book(props) {
                 />
               </View>
             ) : null}
+
             <Image
               style={[styles.img, padImgStyle]}
               source={{ uri: imageUri }}
-              // source={image}
             />
+            {index === 0 && !storyStatus?.read ? (
+              <Image
+                style={[
+                  styles.newIcon,
+                  { position: 'absolute', top: -15, right: -10 },
+                ]}
+                source={require('../../../assets/new.png')}
+              />
+            ) : null}
           </View>
         )}
         <View style={styles.nameContainer}>
@@ -169,9 +192,9 @@ function Book(props) {
             style={[
               styles.name,
               {
-                fontSize: main_menu_font_size || 15,
-                color: main_menu_color || '#fff',
-                ...(main_menu_weight === '粗' && {
+                fontSize: main_menu_name_size || 15,
+                color: main_menu_name_color || '#fff',
+                ...(main_menu_name_weight === '粗' && {
                   fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
                 }),
               },
@@ -211,6 +234,10 @@ const styles = StyleSheet.create({
   lockIcon: {
     width: 40,
     height: 40,
+  },
+  newIcon: {
+    width: 30,
+    height: 30,
   },
   lock: {
     position: 'absolute',
