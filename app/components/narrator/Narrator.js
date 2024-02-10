@@ -1,5 +1,5 @@
 import React, { useContext, useMemo } from 'react';
-import { View, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet, Image, Pressable } from 'react-native';
 
 import colors from '../../config/colors';
 import AppText from '../AppText';
@@ -19,6 +19,7 @@ function Narrator(props) {
     textContentColor,
     textContentWeight,
     textContentSize,
+    textContentBaseColor,
   } = props;
 
   const imgUrl = useMemo(
@@ -29,18 +30,26 @@ function Narrator(props) {
   return (
     <View style={[styles.contentContainer]}>
       {textMsg ? (
-        <AppText
+        <View
           style={{
-            textAlign: 'center',
-            fontSize: textContentSize || 20,
-            color: textContentColor || '#fff',
-            ...(textContentWeight === '粗' && {
-              fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
-            }),
+            backgroundColor: textContentBaseColor,
+            borderRadius: 20,
+            padding: 10,
           }}
         >
-          {textMsg}
-        </AppText>
+          <AppText
+            style={{
+              textAlign: 'center',
+              fontSize: textContentSize || 20,
+              color: textContentColor || '#fff',
+              ...(textContentWeight === '粗' && {
+                fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
+              }),
+            }}
+          >
+            {textMsg}
+          </AppText>
+        </View>
       ) : null}
       {imgMsg ? (
         <Image style={{ width: 100 }} source={{ uri: imgUrl }} />

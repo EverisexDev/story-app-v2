@@ -2,11 +2,10 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   StyleSheet,
   FlatList,
-  View,
   Pressable,
-  ScrollView,
   ImageBackground,
   Platform,
+  SafeAreaView,
 } from 'react-native';
 import axios from 'axios';
 import colors from '../config/colors';
@@ -18,6 +17,7 @@ import storage from '../storage/storage';
 import { useRoute } from '@react-navigation/native';
 
 const domain = 'http://api.xstudio-mclub.url.tw/images/update/';
+const initStoryIdx = 5;
 
 function StoryScreen({ route, navigation }) {
   const routes = useRoute();
@@ -33,35 +33,52 @@ function StoryScreen({ route, navigation }) {
   } = routes.params;
 
   const [index, setIndex] = useState({
-    story: 3,
+    story: initStoryIdx,
     screen: null,
   });
-
-  // const [maxY, setMaxY] = useState(0);
-  // const [cuttentY, setCuttentY] = useState(0);
+  const [story, setStory] = useState([]);
   const [queryInfo, setQueryInfo] = useState({
     config: [],
     screenings: {},
-    content: [],
+    content: null,
     role: {},
     imageUrl: '',
   });
   const flatlistRef = useRef(null);
 
+  const cacheData = useMemo(
+    () => ({
+      screenId: queryInfo.screenings?.[index.screen]?.id,
+      storyId,
+      chapterId,
+      storyData,
+      nochapter,
+    }),
+    [queryInfo.screenings, index.screen]
+  );
+
   const onPressOption = (idx) => {
-    let id = 0;
-    queryInfo.content?.find((e, i) => {
-      if (+e.order === +idx) {
-        id = i;
-      }
-    });
-    flatlistRef.current?.scrollToIndex({
-      index: id,
-      viewPosition: 0,
-    });
+    if (idx) {
+      let id = 0;
+      queryInfo.content?.find((e, i) => {
+        if (+e.order === +idx) {
+          id = i;
+        }
+      });
+      setIndex((prev) => ({
+        ...prev,
+        story: id,
+      }));
+    } else {
+      setIndex((prev) => ({
+        ...prev,
+        story: prev.story + 1,
+      }));
+    }
   };
-  console.log(screenId);
+
   useEffect(() => {
+    // set next scene
     const fetchStories = async () => {
       try {
         const _id = queryInfo.screenings?.[index.screen]?.id;
@@ -79,20 +96,8 @@ function StoryScreen({ route, navigation }) {
               content: storyContent,
               imageUrl: domain + queryInfo?.screenings?.[index.screen]?.bg_view,
             }));
-            flatlistRef.current?.scrollToIndex({
-              index: 0,
-              viewPosition: 0,
-              animated: false,
-            });
 
-            let obj = {
-              screenId: queryInfo.screenings?.[index.screen]?.id,
-              storyId,
-              chapterId,
-              storyData,
-              nochapter,
-            };
-            storage.storeStory(obj, 'continueStory');
+            storage.storeStory(cacheData, 'continueStory');
           }
         } else {
           // 故事結束，儲存到再次回味畫面
@@ -112,10 +117,37 @@ function StoryScreen({ route, navigation }) {
   }, [index.screen]);
 
   useEffect(() => {
+    if (!queryInfo?.content) return;
+
+    if (queryInfo?.content[index.story]?.contentPresent === '結尾') {
+      setIndex((prev) => ({
+        story: initStoryIdx,
+        screen: prev.screen + 1,
+      }));
+    } else if (index.story === initStoryIdx) {
+      setStory(queryInfo?.content?.slice(0, index.story));
+      setTimeout(() => {
+        flatlistRef.current?.scrollToIndex({
+          index: 0,
+          viewPosition: 0,
+          animated: false,
+        });
+      }, 100);
+    } else {
+      setStory((prev) => [...prev, queryInfo?.content[index.story]]);
+      setTimeout(() => {
+        flatlistRef.current.scrollToEnd({
+          animated: true,
+        });
+      }, 100);
+    }
+  }, [index.story, queryInfo?.content]);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const config = await axios.get(
-          `http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story-list/${storyId}`
+          `http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story-list`
         );
         const screenings = await axios.get(
           `http://api.xstudio-mclub.url.tw/api/v1/admin/screenings/${storyId}/${chapterId}`
@@ -137,17 +169,19 @@ function StoryScreen({ route, navigation }) {
             .sort((a, b) => a?.order - b?.order);
 
           setQueryInfo({
-            config: config?.data ?? {},
+            config: config?.data[0] ?? {},
             screenings: screenings?.data ?? {},
             role: role?.data ?? {},
             content: storyContent,
             imageUrl: domain + screenings?.data?.[screenId ?? 0]?.bg_view,
-            roleConf: roleConf?.data?.[0]
+            roleConf: roleConf?.data?.[0],
           });
           setIndex((prev) => ({
             ...prev,
             screen: screenId ?? 0,
           }));
+
+          storage.storeStory(cacheData, 'continueStory');
         }
       } catch (error) {
         console.error('API 請求失敗：', error);
@@ -156,132 +190,66 @@ function StoryScreen({ route, navigation }) {
 
     fetchData();
   }, []);
-  // useEffect(() => {
-  //   // console.log(currentBackIdx, currentChatIdx);
 
-  //   // 如果背景存在，代表故事尚未結束
-  //   if (currentStory.default[currentBackIdx]) {
-  //     let chats = currentStory.default[currentBackIdx].chats;
-  //     console.log("現在背景", currentBackIdx);
-  //     console.log("現在對話", currentChatIdx);
-  //     console.log("現在對話長度", chats.length);
-
-  //     // 如果 chats[idx]存在，代表還有對話，且，idx < chats.length，代表故事還沒走完
-  //     // 就要 setStoryChatArr
-  //     if (chats[currentChatIdx] && currentChatIdx <= chats.length) {
-  //       // 篩選出這個背景的對話中，所有在currentChatIdx之前的對話
-  //       let chatsBeforeCurrentChatIdx = chats.filter(
-  //         (c) => c.chatSN <= currentChatIdx + 1
-  //       );
-  //       setStoryChatArr(chatsBeforeCurrentChatIdx);
-  //     } else {
-  //       // console.log("current", cuttentY, "max", maxY);
-  //       if (currentChatIdx >= chats.length && cuttentY >= maxY) {
-  //         console.log("下一頁");
-  //         setStoryChatArr([]);
-  //         setCurrentChatIdx(-1);
-  //         setCurrentBackIdx(currentBackIdx + 1);
-  //         setMaxY(0);
-  //         setCuttentY(0);
-  //       }
-  //       console.log("場景結束");
-  //     }
-  //     // 把現在看的這個故事的狀況儲存起來
-  //     let obj = {
-  //       ...storyDetail,
-  //       backSN: currentBackIdx,
-  //       chatSN: currentChatIdx,
-  //       story: currentStory,
-  //     };
-  //     storage.storeStory(obj, "continueStory");
-
-  //     setTimeout(() => {
-  //       try {
-  //         flatlistRef.current.scrollToEnd({
-  //           animating: true,
-  //         });
-  //       } catch {}
-  //     }, 200);
-  //   }
-  // }, [currentChatIdx]);
-
-  // 安著的 onMomentumScrollEnd不會在自動滾的時候設定數值
-  // const endScroll = (e) => {
-  //   // console.log("end", e.nativeEvent.contentOffset.y);
-  //   if (maxY < e.nativeEvent.contentOffset.y) {
-  //     setMaxY(e.nativeEvent.contentOffset.y);
-  //   }
-  // };
-
-  // 哀鳳的滑動可以滑超過最大值，導致current<maxY
-  // const onScroll = (e) => {
-  //   console.log('現在Ｙ', e.nativeEvent.contentOffset.y);
-  //   console.log('最大Ｙ', maxY);
-  //   setCuttentY(e.nativeEvent.contentOffset.y);
-  //   if (maxY < e.nativeEvent.contentOffset.y) {
-  //     console.log('超過最大值');
-  //     setMaxY(e.nativeEvent.contentOffset.y);
-  //   }
-  // };
-  console.log({name})
   return (
-    <ImageBackground
-      fadeDuration={2000}
-      style={styles.container}
-      resizeMode='cover'
-      source={{
-        uri: queryInfo?.imageUrl ?? domain,
-      }}
-    >
-      <StoryHeader
-        storyName={name}
-        author={author}
-        config={queryInfo?.config}
-      />
-      <FlatList
-        data={queryInfo.content ?? [0]}
-        ref={flatlistRef}
-        keyExtractor={(item) => item?.id?.toString()}
-        scrollEnabled={true}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item, index }) => {
-          return (
-            <Pressable
-              onPress={() => {
-                setIndex((prev) => ({
-                  ...prev,
-                  screen: prev.screen + 1,
-                }));
-              }}
-            >
-              {item?.contentPresent === '對話' ? (
-                <Chat
-                  {...item}
-                  textMsg={item?.textContent}
-                  imgMsg={item?.graphy}
-                  soundMsg={item?.voice}
-                  videoMsg={item?.video}
-                  roleList={queryInfo?.role}
-                  index={index}
-                  roleConf={queryInfo?.roleConf}
-                />
-              ) : (
-                <Narrator
-                  {...item}
-                  textMsg={item?.textContent}
-                  imgMsg={item?.graphy}
-                  soundMsg={item?.voice}
-                  videoMsg={item?.video}
-                  videoDirection={item?.videoFormat}
-                  index={index}
-                  onPressOption={onPressOption}
-                />
-              )}
-            </Pressable>
-          );
-        }}
-      />
-    </ImageBackground>
+    <SafeAreaView style={{ flex: 1 }}>
+      <ImageBackground
+        fadeDuration={2000}
+        style={styles.container}
+        resizeMode='cover'
+        source={
+          queryInfo?.imageUrl
+            ? {
+                uri: queryInfo?.imageUrl,
+              }
+            : null
+        }
+      >
+        <StoryHeader
+          storyName={name}
+          author={author}
+          config={queryInfo?.config}
+        />
+        <FlatList
+          data={story}
+          ref={flatlistRef}
+          keyExtractor={(item) => item?.id?.toString()}
+          scrollEnabled={true}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item, index }) => {
+            return (
+              <Pressable onPress={() => onPressOption(null)}>
+                <>
+                  {item?.contentPresent === '對話' ? (
+                    <Chat
+                      {...item}
+                      textMsg={item?.textContent}
+                      imgMsg={item?.graphy}
+                      soundMsg={item?.voice}
+                      videoMsg={item?.video}
+                      roleList={queryInfo?.role}
+                      index={index}
+                      roleConf={queryInfo?.roleConf}
+                    />
+                  ) : (
+                    <Narrator
+                      {...item}
+                      textMsg={item?.textContent}
+                      imgMsg={item?.graphy}
+                      soundMsg={item?.voice}
+                      videoMsg={item?.video}
+                      videoDirection={item?.videoFormat}
+                      index={index}
+                      onPressOption={onPressOption}
+                    />
+                  )}
+                </>
+              </Pressable>
+            );
+          }}
+        />
+      </ImageBackground>
+    </SafeAreaView>
   );
 }
 

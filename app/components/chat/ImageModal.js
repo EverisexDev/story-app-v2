@@ -34,7 +34,7 @@ const ImageModal = (props, ref) => {
         <View style={[styles.container]}>
           <Image
             source={{ uri: props?.imageUrl }}
-            style={{ width: wp('90%'), height: 250 }}
+            style={{ width: wp('100%'), height: 250 }}
           />
         </View>
       </Modal>

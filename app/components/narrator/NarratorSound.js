@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, Pressable, Image } from 'react-native';
 import { Audio } from 'expo-av';
 
 function NarratorSound({ soundMsg }) {
-  const [sound, setSound] = useState();
-  async function playSound() {
+  const [sound, setSound] = useState('');
+
+  const playSound = useCallback(async () => {
     const soundUrl =
       'http://api.xstudio-mclub.url.tw/images/update/' + soundMsg;
     await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
@@ -13,9 +14,10 @@ function NarratorSound({ soundMsg }) {
       { shouldPlay: true }
     );
     setSound(_sound);
-  }
+  }, [soundMsg]);
 
   useEffect(() => {
+    playSound();
     return () => {
       setTimeout(() => {
         try {
@@ -24,7 +26,7 @@ function NarratorSound({ soundMsg }) {
         } catch {}
       }, 40000);
     };
-  }, [sound]);
+  }, []);
 
   return (
     <Pressable onPress={playSound}>

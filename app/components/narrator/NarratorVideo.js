@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useContext, useMemo } from 'react';
 import { View, StyleSheet, Dimensions, Pressable } from 'react-native';
 import { Video } from 'expo-av';
 import colors from '../../config/colors';
-import StoryContext from '../story/context';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -18,7 +17,9 @@ function NarratorVideo({ videoMsg, videoDirection }) {
         : { width: screenWidth, height: screenWidth * (16 / 9) },
     [videoDirection]
   );
-
+  useEffect(() => {
+    video.current?.playAsync();
+  }, []);
   return (
     <Pressable
       onPress={() => {
@@ -31,7 +32,7 @@ function NarratorVideo({ videoMsg, videoDirection }) {
           style={videoStyle}
           source={{ uri: videoUrl }}
           resizeMode='contain'
-          shouldPlay={false}
+          // shouldPlay={false}
           // isLooping
           // onPlaybackStatusUpdate={(status) => setStatus(() => status)}
         />

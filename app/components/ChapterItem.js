@@ -52,7 +52,7 @@ const ChapterItem = (props) => {
       author,
       storyData,
       nochapter,
-    });
+    })
     return;
     if (isFreeOpen) {
       Alert.alert(window_title, chapter_infor, [

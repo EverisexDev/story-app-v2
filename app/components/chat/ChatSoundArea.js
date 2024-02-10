@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, StyleSheet, Pressable, Image } from 'react-native';
 import { Audio } from 'expo-av';
 
 function ChatSoundArea({ soundMsg, backgroundColor }) {
   const [sound, setSound] = useState();
-  async function playSound() {
+
+  const playSound = useCallback(async () => {
     const soundUrl =
       'http://api.xstudio-mclub.url.tw/images/update/' + soundMsg;
     await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
@@ -13,9 +14,10 @@ function ChatSoundArea({ soundMsg, backgroundColor }) {
       { shouldPlay: true }
     );
     setSound(_sound);
-  }
+  }, [soundMsg]);
 
   useEffect(() => {
+    playSound();
     return () => {
       setTimeout(() => {
         try {
@@ -24,7 +26,7 @@ function ChatSoundArea({ soundMsg, backgroundColor }) {
         } catch {}
       }, 40000);
     };
-  }, [sound]);
+  }, []);
 
   return (
     <Pressable

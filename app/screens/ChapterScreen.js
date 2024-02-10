@@ -3,6 +3,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import ChapterItem from '../components/ChapterItem';
 import AppText from '../components/AppText';
+import StoryHeader from '../components/StoryHeader';
 
 import { useRoute } from '@react-navigation/native';
 
@@ -44,11 +45,14 @@ const ChapterScreen = () => {
         const uiConfig = await axios.get(
           'http://api.xstudio-mclub.url.tw/api/v1/admin/setup-chapter'
         );
-
+        const storyConfig = await axios.get(
+          `http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story-list`
+        );
         setQueryInfo({
           listData: chapterList?.data ?? [],
           toastConfig: toastConfig?.data?.[1] ?? {},
           uiConfig: uiConfig?.data?.[0] ?? {},
+          storyConfig: storyConfig?.data[0] ?? []
         });
         // if (response?.data && Array.isArray(response.data)) {
         //   // const storyTypes = response.data[0];
@@ -68,14 +72,16 @@ const ChapterScreen = () => {
     <View style={{ flex: 1, backgroundColor: view_color ?? '#fff' }}>
       <View
         style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          padding: 10,
+          paddingTop: 20,
         }}
       >
-        <AppText>{name}</AppText>
-        <AppText>{author}</AppText>
+       <StoryHeader
+          storyName={name}
+          author={author}
+          config={queryInfo?.storyConfig}
+        />
       </View>
+      
       <FlatList
         data={queryInfo?.listData}
         keyExtractor={(item) => item?.id?.toString()}

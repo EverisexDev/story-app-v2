@@ -8,23 +8,27 @@ function ChatVideoArea({ videoMsg }) {
   // const [status, setStatus] = useState({});
   const videoUrl = 'http://api.xstudio-mclub.url.tw/images/update/' + videoMsg;
 
+  useEffect(() => {
+    video.current?.playAsync();
+  }, []);
+
   return (
     <Pressable
       onPress={() => {
         video.current?.playAsync();
       }}
     >
-    <View style={styles.container}>
-      <Video
-        ref={video}
-        style={styles.video}
-        source={{ uri: videoUrl }}
-        useNativeControls
-        resizeMode='contain'
-        // isLooping
-        // onPlaybackStatusUpdate={(status) => setStatus(() => status)}
-      />
-    </View>
+      <View style={styles.container}>
+        <Video
+          ref={video}
+          style={styles.video}
+          source={{ uri: videoUrl }}
+          useNativeControls
+          resizeMode='contain'
+          // isLooping
+          // onPlaybackStatusUpdate={(status) => setStatus(() => status)}
+        />
+      </View>
     </Pressable>
   );
 }

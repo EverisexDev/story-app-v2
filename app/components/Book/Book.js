@@ -80,14 +80,14 @@ function Book(props) {
         style={styles.container}
         onPress={() => {
           navigation.navigate(routes.CHAPTER, {
-                          name: main_menu_name,
-                          author,
-                          storyId: id,
-                          view_color,
-                        })
+            name: main_menu_name,
+            author,
+            storyId: id,
+            view_color,
+          });
           return;
           if (!isOpen) return;
-          if (index === 0) storage.storeStory({ storyId: id }, 'continueStory');
+          // if (index === 0) storage.storeStory({ storyId: id }, 'continueStory');
           if (storyStatus?.read)
             Alert.alert(
               main_menu_title,

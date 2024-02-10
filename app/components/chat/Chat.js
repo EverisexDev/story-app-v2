@@ -26,7 +26,6 @@ function Chat({
   const roleData = useMemo(() => {
     return roleList?.find((e) => e?.role_name?.trim() === roleName?.trim());
   }, [role, roleList]);
-  console.log(roleConf);
 
   const LeftOrRight = () => {
     if (role !== '主角') {
@@ -41,11 +40,12 @@ function Chat({
           {textMsg ? (
             <ChatTextArea
               textMsg={textMsg}
-              backgroundColor={
-                roleConf?.boy_Supporting_Color
-                  ? { backgroundColor: roleConf?.boy_Supporting_Color }
-                  : styles.leftBackground
-              }
+              backgroundColor={{
+                backgroundColor:
+                  roleData?.role_sex !== '女'
+                    ? roleConf?.boy_Supporting_Color
+                    : roleConf?.girl_Supporting_Color,
+              }}
               textStyle={{
                 fontSize: textContentSize || 20,
                 color: textContentColor || '#fff',
@@ -110,7 +110,8 @@ function Chat({
           <PersonalPhoto
             photo={roleData?.role_pic}
             name={roleData?.role_name}
-            nameColor={'#000'}
+            {...roleData}
+            roleConf={roleConf}
           />
         </View>
       );

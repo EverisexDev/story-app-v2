@@ -1,7 +1,10 @@
 import React, { useRef } from 'react';
 import { View, StyleSheet, Pressable, Image } from 'react-native';
 import ImageModal from './ImageModal';
-
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
 const domain = 'http://api.xstudio-mclub.url.tw/images/update/';
 
 function ChatImageArea({ imgMsg, backgroundColor }) {
@@ -19,6 +22,7 @@ function ChatImageArea({ imgMsg, backgroundColor }) {
             fadeDuration={0}
             style={styles.img}
             source={{ uri: imageUrl }}
+            resizeMode='contain'
           />
         </View>
       </Pressable>
@@ -34,7 +38,7 @@ const styles = StyleSheet.create({
   },
   img: {
     borderRadius: 15,
-    width: 230,
+    width: wp('70%'),
     height: 200,
   },
 });

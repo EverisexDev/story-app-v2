@@ -20,7 +20,7 @@ function ContinueScreen() {
     }
     getStories();
   }, []);
-
+console.log(storyCache)
   return (
     <Screen>
       <AppHeader />
