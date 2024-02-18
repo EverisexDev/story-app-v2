@@ -36,6 +36,7 @@ function Chat({
             name={roleData?.role_name}
             {...roleData}
             roleConf={roleConf}
+            showInfo={true}
           />
           {textMsg ? (
             <ChatTextArea
@@ -112,6 +113,7 @@ function Chat({
             name={roleData?.role_name}
             {...roleData}
             roleConf={roleConf}
+            showInfo={false}
           />
         </View>
       );

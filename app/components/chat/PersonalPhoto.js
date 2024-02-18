@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, StyleSheet, Image, Pressable, Alert,Platform } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Image,
+  Pressable,
+  Alert,
+  Platform,
+} from 'react-native';
 
 import AppText from '../AppText';
 const domain = 'http://api.xstudio-mclub.url.tw/images/update/';
@@ -12,17 +19,19 @@ function PersonalPhoto(props) {
     role_foolproof_title,
     role_foolproof_content,
     roleConf,
+    showInfo,
   } = props;
 
   return (
     <Pressable
       onPress={() => {
-        Alert.alert(role_foolproof_title, role_infor, [
-          {
-            text: role_foolproof_content ?? '',
-            cancelable: true,
-          },
-        ]);
+        showInfo &&
+          Alert.alert(role_foolproof_title, role_infor, [
+            {
+              text: role_foolproof_content ?? '',
+              cancelable: true,
+            },
+          ]);
       }}
     >
       <View style={styles.container}>
@@ -38,8 +47,8 @@ function PersonalPhoto(props) {
               color: roleConf?.role_name_color,
               fontSize: roleConf?.role_name_size || 20,
               ...(roleConf?.role_name_weight === '粗' && {
-                  fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
-                })
+                fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
+              }),
             },
           ]}
         >

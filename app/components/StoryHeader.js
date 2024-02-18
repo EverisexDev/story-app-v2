@@ -29,8 +29,8 @@ function StoryHeader({ storyName, author, config }) {
           defaultStyle.text,
           styles.text,
           {
-            fontSize: stroy_name_size ?? 20,
-            color: stroy_name_color || '#fff',
+            fontSize: stroy_name_size,
+            color: stroy_name_color?.trim() || '#fff',
             ...(stroy_name_weight === '粗' && {
               fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
             }),
@@ -44,8 +44,8 @@ function StoryHeader({ storyName, author, config }) {
           defaultStyle.text,
           styles.text,
           {
-            fontSize: author_size ?? 20,
-            color: author_color || '#000',
+            fontSize: author_size,
+            color: author_color || '#fff',
             ...(author_weight === '粗' && {
               fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
             }),

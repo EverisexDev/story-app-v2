@@ -45,15 +45,15 @@ const ChapterItem = (props) => {
   const imageUri = `http://api.xstudio-mclub.url.tw/images/update/${chapter_img}`;
 
   const showAlert = () => {
-    navigation.navigate(routes.STORY, {
-      storyId: storyId,
-      chapterId: id,
-      name: storyName,
-      author,
-      storyData,
-      nochapter,
-    })
-    return;
+    // navigation.navigate(routes.STORY, {
+    //   storyId: storyId,
+    //   chapterId: id,
+    //   name: storyName,
+    //   author,
+    //   storyData,
+    //   nochapter,
+    // })
+    // return;
     if (isFreeOpen) {
       Alert.alert(window_title, chapter_infor, [
         {

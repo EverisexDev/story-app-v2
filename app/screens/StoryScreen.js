@@ -6,6 +6,7 @@ import {
   ImageBackground,
   Platform,
   SafeAreaView,
+  View,
 } from 'react-native';
 import axios from 'axios';
 import colors from '../config/colors';
@@ -15,9 +16,13 @@ import StoryHeader from '../components/StoryHeader';
 import Chat from '../components/chat/Chat';
 import storage from '../storage/storage';
 import { useRoute } from '@react-navigation/native';
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from 'react-native-responsive-screen';
 
 const domain = 'http://api.xstudio-mclub.url.tw/images/update/';
-const initStoryIdx = 5;
+const initStoryIdx = -1;
 
 function StoryScreen({ route, navigation }) {
   const routes = useRoute();
@@ -45,6 +50,7 @@ function StoryScreen({ route, navigation }) {
     imageUrl: '',
   });
   const flatlistRef = useRef(null);
+  const choseRef = useRef(false);
 
   const cacheData = useMemo(
     () => ({
@@ -59,20 +65,26 @@ function StoryScreen({ route, navigation }) {
 
   const onPressOption = (idx) => {
     if (idx) {
-      let id = 0;
-      queryInfo.content?.find((e, i) => {
-        if (+e.order === +idx) {
-          id = i;
-        }
-      });
-      setIndex((prev) => ({
-        ...prev,
-        story: id,
-      }));
+      if (choseRef.current) {
+        return;
+      } else {
+        let id = 0;
+        queryInfo.content?.find((e, i) => {
+          if (+e.order === +idx) {
+            id = i;
+          }
+        });
+        // if(index.story > id)
+        setIndex((prev) => ({
+          ...prev,
+          story: id,
+        }));
+        choseRef.current = true;
+      }
     } else {
       setIndex((prev) => ({
         ...prev,
-        story: prev.story + 1,
+        story: index.story + 1,
       }));
     }
   };
@@ -118,30 +130,25 @@ function StoryScreen({ route, navigation }) {
 
   useEffect(() => {
     if (!queryInfo?.content) return;
-
     if (queryInfo?.content[index.story]?.contentPresent === '結尾') {
       setIndex((prev) => ({
         story: initStoryIdx,
         screen: prev.screen + 1,
       }));
-    } else if (index.story === initStoryIdx) {
-      setStory(queryInfo?.content?.slice(0, index.story));
-      setTimeout(() => {
-        flatlistRef.current?.scrollToIndex({
-          index: 0,
-          viewPosition: 0,
-          animated: false,
-        });
-      }, 100);
+      setStory([]);
     } else {
-      setStory((prev) => [...prev, queryInfo?.content[index.story]]);
-      setTimeout(() => {
-        flatlistRef.current.scrollToEnd({
-          animated: true,
-        });
-      }, 100);
+      setStory((prev) => [...prev, queryInfo?.content?.[index.story]]);
     }
   }, [index.story, queryInfo?.content]);
+
+  useEffect(() => {
+    if (!story.length) return;
+    flatlistRef.current.scrollToIndex({
+      index: story.length - 1,
+      animated: true,
+      viewPosition: 1,
+    });
+  }, [story, index.story]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -192,33 +199,46 @@ function StoryScreen({ route, navigation }) {
   }, []);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ImageBackground
-        fadeDuration={2000}
-        style={styles.container}
-        resizeMode='cover'
-        source={
-          queryInfo?.imageUrl
-            ? {
-                uri: queryInfo?.imageUrl,
-              }
-            : null
-        }
-      >
+    <ImageBackground
+      fadeDuration={2000}
+      style={[styles.container]}
+      resizeMode='cover'
+      source={
+        queryInfo?.imageUrl
+          ? {
+              uri: queryInfo?.imageUrl,
+            }
+          : null
+      }
+    >
+      <SafeAreaView style={{ flex: 1, position: 'relative' }}>
         <StoryHeader
           storyName={name}
           author={author}
           config={queryInfo?.config}
         />
-        <FlatList
-          data={story}
-          ref={flatlistRef}
-          keyExtractor={(item) => item?.id?.toString()}
-          scrollEnabled={true}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item, index }) => {
-            return (
-              <Pressable onPress={() => onPressOption(null)}>
+        <Pressable
+          onPress={() => onPressOption(null)}
+          style={{
+            flex: 1,
+          }}
+        >
+          <FlatList
+            data={story}
+            ref={flatlistRef}
+            keyExtractor={(item, index) => index.toString()}
+            scrollEnabled={true}
+            showsVerticalScrollIndicator={false}
+            onScrollToIndexFailed={(info) => {
+              setTimeout(() => {
+                flatlistRef.current?.scrollToIndex({
+                  index: info.index,
+                  animated: true,
+                });
+              }, 500);
+            }}
+            renderItem={({ item, index }) => {
+              return (
                 <>
                   {item?.contentPresent === '對話' ? (
                     <Chat
@@ -241,15 +261,16 @@ function StoryScreen({ route, navigation }) {
                       videoDirection={item?.videoFormat}
                       index={index}
                       onPressOption={onPressOption}
+                      choseRef={choseRef}
                     />
                   )}
                 </>
-              </Pressable>
-            );
-          }}
-        />
-      </ImageBackground>
-    </SafeAreaView>
+              );
+            }}
+          />
+        </Pressable>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 
@@ -257,6 +278,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: Platform.OS === 'android' ? 10 : 20,
+    paddingBottom: 20,
     backgroundColor: colors.dark,
   },
 });

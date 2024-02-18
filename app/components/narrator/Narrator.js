@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { View, StyleSheet, Image, Pressable } from 'react-native';
 
 import colors from '../../config/colors';
@@ -6,6 +6,9 @@ import AppText from '../AppText';
 import NarratorSound from './NarratorSound';
 import NarratorVideo from './NarratorVideo';
 import NarratorOption from './NarratorOption';
+import ImageModal from '../ImageModal';
+
+import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 
 function Narrator(props) {
   const {
@@ -19,16 +22,17 @@ function Narrator(props) {
     textContentColor,
     textContentWeight,
     textContentSize,
-    textContentBaseColor,
+    textContentBaseColor,choseRef
   } = props;
+  const modalRef = useRef(null);
 
   const imgUrl = useMemo(
     () => 'http://api.xstudio-mclub.url.tw/images/update/' + imgMsg,
     [imgMsg]
   );
-
   return (
     <View style={[styles.contentContainer]}>
+      {/* <ImageModal ref={modalRef} imageUrl={imgUrl} /> */}
       {textMsg ? (
         <View
           style={{
@@ -52,14 +56,26 @@ function Narrator(props) {
         </View>
       ) : null}
       {imgMsg ? (
-        <Image style={{ width: 100 }} source={{ uri: imgUrl }} />
+        <>
+          <Pressable
+            onPress={() => {
+              modalRef.current?.toggle();
+            }}
+          >
+            <Image
+              style={{ width: wp('100%'), height: 200 }}
+              source={{ uri: imgUrl }}
+            />
+          </Pressable>
+          <ImageModal ref={modalRef} imageUrl={imgUrl} />
+        </>
       ) : null}
       {soundMsg ? <NarratorSound soundMsg={soundMsg} /> : null}
       {videoMsg ? (
         <NarratorVideo videoMsg={videoMsg} videoDirection={videoDirection} />
       ) : null}
       {choice1Content ? (
-        <NarratorOption {...props} onPressOption={onPressOption} />
+        <NarratorOption {...props} onPressOption={onPressOption} choseRef={choseRef}/>
       ) : null}
     </View>
   );

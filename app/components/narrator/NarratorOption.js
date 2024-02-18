@@ -1,12 +1,10 @@
 import { View, Platform, Pressable } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import AppText from '../AppText';
 
 const NarratorOption = (props) => {
-  const {
-    onPressOption
-  } = props;
-
+  const { onPressOption, choseRef } = props;
+  // console.log(choseRef);
   return (
     <View>
       {[1, 2, 3].map((e) => {
@@ -15,9 +13,9 @@ const NarratorOption = (props) => {
           <Pressable
             key={e}
             onPress={() => {
-              console.log('option',props?.[`choice${e}Next`]);
-              onPressOption && onPressOption(props?.[`choice${e}Next`])
+              onPressOption && onPressOption(props?.[`choice${e}Next`]);
             }}
+            disabled={choseRef?.current}
             style={{
               marginBottom: 10,
               justifyContent: 'center',

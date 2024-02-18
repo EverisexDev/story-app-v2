@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   StyleSheet,
@@ -9,14 +9,10 @@ import {
   Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import storage from '../../storage/storage';
 import routes from '../../navigations/routes';
 import AppText from '../AppText';
 import colors from '../../config/colors';
-import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
-} from 'react-native-responsive-screen';
+
 const screenWidth = Dimensions.get('window').width;
 
 function Book(props) {
@@ -60,7 +56,8 @@ function Book(props) {
   const storyStatus = useMemo(() => {
     const read = storyCache?.continueStory?.find((e) => +e.storyId === +id);
     const finish = storyCache?.finishStory?.find((e) => +e.storyId === +id);
-    return { read, finish };
+    const isNew =  !(read || finish)
+    return { read, finish, isNew };
   }, [storyCache]);
 
   const storyPayload = {
@@ -79,58 +76,47 @@ function Book(props) {
       <Pressable
         style={styles.container}
         onPress={() => {
-          navigation.navigate(routes.CHAPTER, {
-            name: main_menu_name,
-            author,
-            storyId: id,
-            view_color,
-          });
-          return;
+          // navigation.navigate(routes.CHAPTER, {
+          //   name: main_menu_name,
+          //   author,
+          //   storyId: id,
+          //   view_color,
+          // });
+          // navigation.navigate(routes.STORY, storyPayload);
+          // return;
           if (!isOpen) return;
-          // if (index === 0) storage.storeStory({ storyId: id }, 'continueStory');
-          if (storyStatus?.read)
-            Alert.alert(
-              main_menu_title,
-              main_menu_content,
-              [
-                {
-                  text: main_menu_btn_left,
-                  onPress: () => {
-                    hasChapter
-                      ? navigation.navigate(routes.CHAPTER, {
-                          name: main_menu_name,
-                          author,
-                          storyId: id,
-                          view_color,
-                        })
-                      : navigation.navigate(routes.STORY, storyPayload);
-                  },
-                },
-                {
-                  text: main_menu_btn_right,
-                  onPress: () =>
-                    navigation.navigate(routes.STORY, {
-                      ...storyPayload,
-                      storyId: storyStatus?.read?.storyId ?? id,
-                      chapterId: storyStatus?.read?.chapterId ?? chapter?.id,
-                      screenId: storyStatus?.read?.screenId,
-                    }),
-                },
-              ],
+          Alert.alert(
+            main_menu_title,
+            main_menu_content,
+            [
               {
-                cancelable: true,
-              }
-            );
-          else {
-            if (hasChapter)
-              navigation.navigate(routes.CHAPTER, {
-                name: main_menu_name,
-                author,
-                storyId: id,
-                view_color,
-              });
-            else navigation.navigate(routes.STORY, storyPayload);
-          }
+                text: main_menu_btn_left,
+                onPress: () => {
+                  hasChapter
+                    ? navigation.navigate(routes.CHAPTER, {
+                        name: main_menu_name,
+                        author,
+                        storyId: id,
+                        view_color,
+                      })
+                    : navigation.navigate(routes.STORY, storyPayload);
+                },
+              },
+              {
+                text: main_menu_btn_right,
+                onPress: () =>
+                  navigation.navigate(routes.STORY, {
+                    ...storyPayload,
+                    storyId: storyStatus?.read?.storyId ?? id,
+                    chapterId: storyStatus?.read?.chapterId ?? chapter?.id,
+                    screenId: storyStatus?.read?.screenId,
+                  }),
+              },
+            ],
+            {
+              cancelable: true,
+            }
+          );
         }}
       >
         {showIcon ? (
@@ -142,7 +128,6 @@ function Book(props) {
             />
             <Image
               style={[styles.img, padImgStyle]}
-              // source={image}
               source={{
                 uri: imageUri,
               }}
@@ -176,7 +161,7 @@ function Book(props) {
               style={[styles.img, padImgStyle]}
               source={{ uri: imageUri }}
             />
-            {index === 0 && !storyStatus?.read ? (
+            {index === 0 && storyStatus?.isNew ? (
               <Image
                 style={[
                   styles.newIcon,
@@ -189,6 +174,7 @@ function Book(props) {
         )}
         <View style={styles.nameContainer}>
           <AppText
+            numberOfLines={1}
             style={[
               styles.name,
               {
@@ -220,6 +206,8 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 20,
     color: colors.leftChatBackground,
+    width: 150,
+    textAlign: 'center',
   },
   img: {
     width: 150,

@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
     height: 40,
     flexDirection: "row",
     justifyContent: "flex-end",
-    backgroundColor: colors.black,
+    backgroundColor: colors.transparent,
   },
   icon: {
     marginRight: 10,
