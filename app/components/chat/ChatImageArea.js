@@ -1,10 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, StyleSheet, Pressable, Image, Dimensions } from 'react-native';
 import ImageModal from '../ImageModal';
-import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
-} from 'react-native-responsive-screen';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -13,7 +9,7 @@ const domain = 'http://api.xstudio-mclub.url.tw/images/update/';
 
 function ChatImageArea({ imgMsg, backgroundColor }) {
   const imageUrl = domain + imgMsg;
-
+  const modalRef = useRef(null);
   const [size, setSize] = useState({});
 
   useEffect(() => {
@@ -27,16 +23,25 @@ function ChatImageArea({ imgMsg, backgroundColor }) {
       setSize(newImage);
     });
   }, [imageUrl]);
-  
-  const modalRef = useRef(null);
+
   return (
     <>
       <Pressable
         onPress={() => {
           modalRef.current?.toggle();
         }}
+        style={{
+          width: size?.width,
+          height: size?.height,
+        }}
       >
-        <View style={[styles.container, backgroundColor]}>
+        <View
+          style={[
+            styles.container,
+            backgroundColor,
+            { width: size?.width, height: size?.height },
+          ]}
+        >
           <Image
             fadeDuration={0}
             style={[styles.img, { width: size?.width, height: size?.height }]}
@@ -60,7 +65,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ChatImageArea;
+export default React.memo(ChatImageArea);
 
 // import React, { useEffect, useState } from "react";
 // import {

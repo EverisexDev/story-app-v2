@@ -20,18 +20,20 @@ function PersonalPhoto(props) {
     role_foolproof_content,
     roleConf,
     showInfo,
+    // onPressOption,
   } = props;
 
   return (
     <Pressable
       onPress={() => {
-        showInfo &&
-          Alert.alert(role_foolproof_title, role_infor, [
-            {
-              text: role_foolproof_content ?? '',
-              cancelable: true,
-            },
-          ]);
+        showInfo
+          && Alert.alert(role_foolproof_title, role_infor, [
+              {
+                text: role_foolproof_content ?? '',
+                cancelable: true,
+              },
+            ])
+          // : onPressOption && onPressOption(null);
       }}
     >
       <View style={styles.container}>
@@ -76,4 +78,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PersonalPhoto;
+export default React.memo(PersonalPhoto);

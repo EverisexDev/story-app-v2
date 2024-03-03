@@ -56,11 +56,12 @@ function Book(props) {
   const storyStatus = useMemo(() => {
     const read = storyCache?.continueStory?.find((e) => +e.storyId === +id);
     const finish = storyCache?.finishStory?.find((e) => +e.storyId === +id);
-    const isNew =  !(read || finish)
+    const isNew = !(read || finish);
     return { read, finish, isNew };
   }, [storyCache]);
 
   const storyPayload = {
+    ...storyStatus?.read,
     name: main_menu_name,
     author,
     storyId: id,
@@ -68,7 +69,7 @@ function Book(props) {
     storyData,
     nochapter,
   };
-
+  
   if (lang !== '繁體中文') return;
 
   return (
@@ -85,38 +86,41 @@ function Book(props) {
           // navigation.navigate(routes.STORY, storyPayload);
           // return;
           if (!isOpen) return;
-          Alert.alert(
-            main_menu_title,
-            main_menu_content,
-            [
-              {
-                text: main_menu_btn_left,
-                onPress: () => {
-                  hasChapter
-                    ? navigation.navigate(routes.CHAPTER, {
-                        name: main_menu_name,
-                        author,
-                        storyId: id,
-                        view_color,
-                      })
-                    : navigation.navigate(routes.STORY, storyPayload);
+          if (storyStatus?.read && showIcon) {
+            navigation.navigate(routes.STORY, storyPayload);
+          } else {
+            Alert.alert(
+              main_menu_title,
+              main_menu_content,
+              [
+                {
+                  text: main_menu_btn_left,
+                  onPress: () => {
+                    hasChapter
+                      ? navigation.navigate(routes.CHAPTER, {
+                          name: main_menu_name,
+                          author,
+                          storyId: id,
+                          view_color,
+                        })
+                      : navigation.navigate(routes.STORY, storyPayload);
+                  },
                 },
-              },
+                {
+                  text: main_menu_btn_right,
+                  onPress: () =>
+                    navigation.navigate(routes.STORY, {
+                      ...storyPayload,
+                      storyId: storyStatus?.read?.storyId ?? id,
+                      chapterId: storyStatus?.read?.chapterId ?? chapter?.id,
+                    }),
+                },
+              ],
               {
-                text: main_menu_btn_right,
-                onPress: () =>
-                  navigation.navigate(routes.STORY, {
-                    ...storyPayload,
-                    storyId: storyStatus?.read?.storyId ?? id,
-                    chapterId: storyStatus?.read?.chapterId ?? chapter?.id,
-                    screenId: storyStatus?.read?.screenId,
-                  }),
-              },
-            ],
-            {
-              cancelable: true,
-            }
-          );
+                cancelable: true,
+              }
+            );
+          }
         }}
       >
         {showIcon ? (

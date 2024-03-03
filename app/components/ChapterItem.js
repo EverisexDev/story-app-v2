@@ -39,7 +39,7 @@ const ChapterItem = (props) => {
     uiConfig,
     storyName,
   } = props ?? {};
-  // console.log(props);
+
   const isFreeOpen = free_open === '開放';
   const navigation = useNavigation();
   const imageUri = `http://api.xstudio-mclub.url.tw/images/update/${chapter_img}`;

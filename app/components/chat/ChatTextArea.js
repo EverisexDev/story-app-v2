@@ -56,4 +56,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ChatTextArea;
+export default React.memo(ChatTextArea);

@@ -4,7 +4,7 @@ import AppText from '../AppText';
 
 const NarratorOption = (props) => {
   const { onPressOption, choseRef } = props;
-  // console.log(choseRef);
+  
   return (
     <View>
       {[1, 2, 3].map((e) => {

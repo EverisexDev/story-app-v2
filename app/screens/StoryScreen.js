@@ -16,13 +16,9 @@ import StoryHeader from '../components/StoryHeader';
 import Chat from '../components/chat/Chat';
 import storage from '../storage/storage';
 import { useRoute } from '@react-navigation/native';
-import {
-  heightPercentageToDP as hp,
-  widthPercentageToDP as wp,
-} from 'react-native-responsive-screen';
 
 const domain = 'http://api.xstudio-mclub.url.tw/images/update/';
-const initStoryIdx = -1;
+const initStoryIdx = null;
 
 function StoryScreen({ route, navigation }) {
   const routes = useRoute();
@@ -32,14 +28,14 @@ function StoryScreen({ route, navigation }) {
     chapterId = 1,
     author = '',
     name = '',
-    screenId = null,
     storyData = {},
     nochapter = [],
+    cachedIndex,
   } = routes.params;
 
   const [index, setIndex] = useState({
     story: initStoryIdx,
-    screen: null,
+    screen: 0,
   });
   const [story, setStory] = useState([]);
   const [queryInfo, setQueryInfo] = useState({
@@ -54,15 +50,15 @@ function StoryScreen({ route, navigation }) {
 
   const cacheData = useMemo(
     () => ({
-      screenId: queryInfo.screenings?.[index.screen]?.id,
+      // screenId: queryInfo.screenings?.[index.screen]?.id,
       storyId,
       chapterId,
       storyData,
       nochapter,
+      cachedIndex: index,
     }),
-    [queryInfo.screenings, index.screen]
+    [queryInfo.screenings, index]
   );
-
   const onPressOption = (idx) => {
     if (idx) {
       if (choseRef.current) {
@@ -84,11 +80,10 @@ function StoryScreen({ route, navigation }) {
     } else {
       setIndex((prev) => ({
         ...prev,
-        story: index.story + 1,
+        story: index.story === null ? 0 : index.story + 1,
       }));
     }
   };
-
   useEffect(() => {
     // set next scene
     const fetchStories = async () => {
@@ -98,7 +93,7 @@ function StoryScreen({ route, navigation }) {
           const content = await axios.get(
             `http://api.xstudio-mclub.url.tw/api/v1/admin/content/${storyId}/${chapterId}/${_id}`
           );
-          if (content?.data.length) {
+          if (content?.data?.length) {
             const storyContent = content?.data
               ?.slice()
               .sort((a, b) => a?.order - b?.order);
@@ -108,47 +103,51 @@ function StoryScreen({ route, navigation }) {
               content: storyContent,
               imageUrl: domain + queryInfo?.screenings?.[index.screen]?.bg_view,
             }));
-
-            storage.storeStory(cacheData, 'continueStory');
           }
-        } else {
-          // 故事結束，儲存到再次回味畫面
-          storage.storeStory({ storyId, storyData, nochapter }, 'finishStory');
-
-          //故事結束，刪除繼續觀賞畫面
-          storage.deleteStory({ storyId }, 'continueStory');
-          navigation.goBack();
         }
       } catch (error) {
         console.error('API 請求失敗：', error);
       }
     };
-    if (index.screen > 0) {
-      fetchStories();
-    }
+
+    fetchStories();
   }, [index.screen]);
 
   useEffect(() => {
-    if (!queryInfo?.content) return;
+    if (!queryInfo?.content || index?.story === null) return;
     if (queryInfo?.content[index.story]?.contentPresent === '結尾') {
       setIndex((prev) => ({
         story: initStoryIdx,
         screen: prev.screen + 1,
       }));
       setStory([]);
+    } else if (index?.story === cachedIndex?.story) {
+      setStory(queryInfo?.content?.slice(0, cachedIndex?.story + 1));
     } else {
       setStory((prev) => [...prev, queryInfo?.content?.[index.story]]);
     }
+    return () => {
+      if (queryInfo.screenings?.[cachedIndex?.screen ?? index.screen]?.id) {
+        storage.storeStory(cacheData, 'continueStory');
+      } else {
+        // 故事結束，儲存到再次回味畫面
+        storage.storeStory({ storyId, storyData, nochapter }, 'finishStory');
+
+        //故事結束，刪除繼續觀賞畫面
+        storage.deleteStory({ storyId }, 'continueStory');
+        // navigation.goBack();
+      }
+    };
   }, [index.story, queryInfo?.content]);
 
   useEffect(() => {
-    if (!story.length) return;
+    if (!story?.length) return;
     flatlistRef.current.scrollToIndex({
       index: story.length - 1,
       animated: true,
       viewPosition: 1,
     });
-  }, [story, index.story]);
+  }, [story]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -165,6 +164,11 @@ function StoryScreen({ route, navigation }) {
         const roleConf = await axios.get(
           `http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story-role`
         );
+
+        const screenId = cachedIndex?.screen
+          ? screenings?.data?.[cachedIndex?.screen]?.id
+          : null;
+
         if (screenId || screenings?.data?.length) {
           const content = await axios.get(
             `http://api.xstudio-mclub.url.tw/api/v1/admin/content/${storyId}/${chapterId}/${
@@ -180,15 +184,10 @@ function StoryScreen({ route, navigation }) {
             screenings: screenings?.data ?? {},
             role: role?.data ?? {},
             content: storyContent,
-            imageUrl: domain + screenings?.data?.[screenId ?? 0]?.bg_view,
+            imageUrl:
+              domain + screenings?.data?.[cachedIndex?.screen ?? 0]?.bg_view,
             roleConf: roleConf?.data?.[0],
           });
-          setIndex((prev) => ({
-            ...prev,
-            screen: screenId ?? 0,
-          }));
-
-          storage.storeStory(cacheData, 'continueStory');
         }
       } catch (error) {
         console.error('API 請求失敗：', error);
@@ -196,7 +195,13 @@ function StoryScreen({ route, navigation }) {
     };
 
     fetchData();
-  }, []);
+    if (cachedIndex) {
+      setIndex({
+        story: cachedIndex?.story ?? null,
+        screen: cachedIndex?.screen ?? 0,
+      });
+    }
+  }, [cachedIndex]);
 
   return (
     <ImageBackground
@@ -229,13 +234,13 @@ function StoryScreen({ route, navigation }) {
             keyExtractor={(item, index) => index.toString()}
             scrollEnabled={true}
             showsVerticalScrollIndicator={false}
-            onScrollToIndexFailed={(info) => {
+            onScrollToIndexFailed={({ index, averageItemLength }) => {
               setTimeout(() => {
                 flatlistRef.current?.scrollToIndex({
-                  index: info.index,
+                  index,
                   animated: true,
                 });
-              }, 500);
+              }, 0);
             }}
             renderItem={({ item, index }) => {
               return (
@@ -250,6 +255,7 @@ function StoryScreen({ route, navigation }) {
                       roleList={queryInfo?.role}
                       index={index}
                       roleConf={queryInfo?.roleConf}
+                      // onPressOption={onPressOption}
                     />
                   ) : (
                     <Narrator

@@ -45,4 +45,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ChatVideoArea;
+export default React.memo(ChatVideoArea);

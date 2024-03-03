@@ -22,6 +22,7 @@ function Chat({
   roleName,
   roleList,
   roleConf,
+  // onPressOption,
 }) {
   const roleData = useMemo(() => {
     return roleList?.find((e) => e?.role_name?.trim() === roleName?.trim());
@@ -30,7 +31,7 @@ function Chat({
   const LeftOrRight = () => {
     if (role !== '主角') {
       return (
-        <View style={styles.chatLeft}>
+        <View style={[styles.chatLeft, imgMsg ? { height: 200 } : null]}>
           <PersonalPhoto
             photo={roleData?.role_pic}
             name={roleData?.role_name}
@@ -114,6 +115,7 @@ function Chat({
             {...roleData}
             roleConf={roleConf}
             showInfo={false}
+            // onPressOption={onPressOption}
           />
         </View>
       );
@@ -126,7 +128,6 @@ const styles = StyleSheet.create({
   chatLeft: {
     flexDirection: 'row',
     paddingVertical: 5,
-    // backgroundColor: colors.danger,
   },
   chatRight: {
     flexDirection: 'row',
@@ -146,4 +147,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Chat;
+export default React.memo(Chat);

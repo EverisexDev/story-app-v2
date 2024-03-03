@@ -14,6 +14,7 @@ import storage from '../storage/storage';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 
 function HomeScreen() {
+  const isFocus = useIsFocused();
   const [storyInfo, setStoryInfo] = useState({
     type: [],
     config: {},
@@ -74,7 +75,8 @@ function HomeScreen() {
     }
     fetchData();
     getStories();
-  }, []);
+  }, [isFocus]);
+
   return (
     <Screen style={{ backgroundColor: storyInfo.config?.[0]?.view_color }}>
       <View

@@ -20,7 +20,7 @@ function ContinueScreen() {
     }
     getStories();
   }, []);
-console.log(storyCache)
+
   return (
     <Screen>
       <AppHeader />
@@ -34,7 +34,12 @@ console.log(storyCache)
               keyExtractor={(item) => item?.storyId?.toString()}
               numColumns={2}
               renderItem={({ item }) => (
-                <Book storyData={item?.storyData} nochapter={item?.nochapter} showIcon={true}/>
+                <Book
+                  storyData={item?.storyData}
+                  cachedIndex={item?.cachedIndex}
+                  nochapter={item?.nochapter}
+                  showIcon={true}
+                />
               )}
             />
           )}
@@ -49,9 +54,9 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   noBooks: {
-    color: colors.leftChatBackground,
+    color: colors.white,
     fontSize: 20,
-    fontWeight: 'bold',
+    // fontWeight: 'bold',
   },
 });
 

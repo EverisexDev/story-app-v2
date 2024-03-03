@@ -2,9 +2,7 @@ import { View, Alert, FlatList, SafeAreaView } from 'react-native';
 import React, { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import ChapterItem from '../components/ChapterItem';
-import AppText from '../components/AppText';
 import StoryHeader from '../components/StoryHeader';
-
 import { useRoute } from '@react-navigation/native';
 
 const ChapterScreen = () => {

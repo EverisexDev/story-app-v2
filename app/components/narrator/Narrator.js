@@ -6,8 +6,6 @@ import AppText from '../AppText';
 import NarratorSound from './NarratorSound';
 import NarratorVideo from './NarratorVideo';
 import NarratorOption from './NarratorOption';
-import ImageModal from '../ImageModal';
-
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 
 function Narrator(props) {
@@ -22,7 +20,8 @@ function Narrator(props) {
     textContentColor,
     textContentWeight,
     textContentSize,
-    textContentBaseColor,choseRef
+    textContentBaseColor,
+    choseRef,
   } = props;
   const modalRef = useRef(null);
 
@@ -56,26 +55,21 @@ function Narrator(props) {
         </View>
       ) : null}
       {imgMsg ? (
-        <>
-          <Pressable
-            onPress={() => {
-              modalRef.current?.toggle();
-            }}
-          >
-            <Image
-              style={{ width: wp('100%'), height: 200 }}
-              source={{ uri: imgUrl }}
-            />
-          </Pressable>
-          <ImageModal ref={modalRef} imageUrl={imgUrl} />
-        </>
+        <Image
+          style={{ width: wp('100%'), height: 200 }}
+          source={{ uri: imgUrl }}
+        />
       ) : null}
       {soundMsg ? <NarratorSound soundMsg={soundMsg} /> : null}
       {videoMsg ? (
         <NarratorVideo videoMsg={videoMsg} videoDirection={videoDirection} />
       ) : null}
       {choice1Content ? (
-        <NarratorOption {...props} onPressOption={onPressOption} choseRef={choseRef}/>
+        <NarratorOption
+          {...props}
+          onPressOption={onPressOption}
+          choseRef={choseRef}
+        />
       ) : null}
     </View>
   );
@@ -89,4 +83,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Narrator;
+export default React.memo(Narrator);

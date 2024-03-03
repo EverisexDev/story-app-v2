@@ -45,4 +45,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NarratorSound;
+export default React.memo(NarratorSound);
