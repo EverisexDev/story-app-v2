@@ -1,17 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, FlatList, Platform } from 'react-native';
-import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { View, FlatList, Platform, Pressable } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 import axios from 'axios';
-import { intersectionBy } from 'lodash';
 import Screen from './Screen';
 import Content from './Content';
 
 import AppHeader from '../components/AppHeader';
 import Books from '../components/Book/Books';
-import routes from '../navigations/routes';
 import AppText from '../components/AppText';
 import storage from '../storage/storage';
-import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 
 function HomeScreen() {
   const isFocus = useIsFocused();

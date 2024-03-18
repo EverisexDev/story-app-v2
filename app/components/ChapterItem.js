@@ -55,24 +55,31 @@ const ChapterItem = (props) => {
     // })
     // return;
     if (isFreeOpen) {
-      Alert.alert(window_title, chapter_infor, [
+      Alert.alert(
+        window_title,
+        chapter_infor,
+        [
+          {
+            text: window_btn_left,
+            cancelable: true,
+          },
+          {
+            text: window_btn_right,
+            onPress: () =>
+              navigation.navigate(routes.STORY, {
+                storyId: storyId,
+                chapterId: id,
+                name: storyName,
+                author,
+                storyData,
+                nochapter,
+              }),
+          },
+        ],
         {
-          text: window_btn_left,
           cancelable: true,
-        },
-        {
-          text: window_btn_right,
-          onPress: () =>
-            navigation.navigate(routes.STORY, {
-              storyId: storyId,
-              chapterId: id,
-              name: storyName,
-              author,
-              storyData,
-              nochapter,
-            }),
-        },
-      ]);
+        }
+      );
     } else return;
   };
 

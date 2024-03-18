@@ -10,7 +10,14 @@ function Books({ type, config, storyList, storyCache, nochapter }) {
     story_type_color = '#fff',
     story_type_weight = '',
   } = config;
-  
+
+  // const storyStatus = useMemo(() => {
+  //   const read = storyCache?.continueStory?.find((e) => +e.storyId === +id);
+  //   const finish = storyCache?.finishStory?.find((e) => +e.storyId === +id);
+  //   const isNew = !(read || finish);
+  //   return { read, finish, isNew };
+  // }, [storyCache]);
+  // console.log(storyCache)
   const renderItem = ({ item,index }) => <Book storyData={item} storyCache={storyCache} nochapter={nochapter} view_color={config?.view_color} index={index}/>;
 
   const listData = useMemo(

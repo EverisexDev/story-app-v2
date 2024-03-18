@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     height: 30,
-    paddingHorizontal: 15,
+    paddingHorizontal: 15, //TODO: 調整寬度
     // marginBottom:20,
     marginTop: 10,
     paddingBottom: 2,

@@ -14,6 +14,7 @@ import Book from '../components/Book/Book';
 
 function ReviewScreen() {
   const [storyCache, setStoryCache] = useState(null);
+  const isFocus = useIsFocused();
 
   useEffect(() => {
     async function getStories() {
@@ -21,7 +22,7 @@ function ReviewScreen() {
       setStoryCache(finishStory);
     }
     getStories();
-  }, []);
+  }, [isFocus]);
   
   return (
     <Screen>

@@ -38,7 +38,7 @@ function Book(props) {
     open = '',
     chapter_type = '',
     author = '',
-    id = 1,
+    id,
     lang,
   } = storyData;
   const navigation = useNavigation();
@@ -50,7 +50,7 @@ function Book(props) {
   const padImgStyle = screenWidth > 500 ? { width: 225, height: 330 } : {};
 
   const chapter = useMemo(() => {
-    return nochapter?.find((e) => e.storyId === id);
+    return nochapter?.find((e) => e.storyid === id);
   }, [nochapter]);
 
   const storyStatus = useMemo(() => {
@@ -61,7 +61,7 @@ function Book(props) {
   }, [storyCache]);
 
   const storyPayload = {
-    ...storyStatus?.read,
+    // ...storyStatus?.read,
     name: main_menu_name,
     author,
     storyId: id,
@@ -69,7 +69,7 @@ function Book(props) {
     storyData,
     nochapter,
   };
-  
+
   if (lang !== '繁體中文') return;
 
   return (
@@ -86,7 +86,8 @@ function Book(props) {
           // navigation.navigate(routes.STORY, storyPayload);
           // return;
           if (!isOpen) return;
-          if (storyStatus?.read && showIcon) {
+
+          if (showIcon) {
             navigation.navigate(routes.STORY, storyPayload);
           } else {
             Alert.alert(
@@ -102,6 +103,7 @@ function Book(props) {
                           author,
                           storyId: id,
                           view_color,
+                          storyData,
                         })
                       : navigation.navigate(routes.STORY, storyPayload);
                   },
@@ -111,6 +113,7 @@ function Book(props) {
                   onPress: () =>
                     navigation.navigate(routes.STORY, {
                       ...storyPayload,
+                      ...storyStatus?.read,
                       storyId: storyStatus?.read?.storyId ?? id,
                       chapterId: storyStatus?.read?.chapterId ?? chapter?.id,
                     }),

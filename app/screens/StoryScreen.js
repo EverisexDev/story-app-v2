@@ -6,11 +6,10 @@ import {
   ImageBackground,
   Platform,
   SafeAreaView,
-  View,
 } from 'react-native';
 import axios from 'axios';
 import colors from '../config/colors';
-
+import routes from '../navigations/routes';
 import Narrator from '../components/narrator/Narrator';
 import StoryHeader from '../components/StoryHeader';
 import Chat from '../components/chat/Chat';
@@ -21,17 +20,17 @@ const domain = 'http://api.xstudio-mclub.url.tw/images/update/';
 const initStoryIdx = null;
 
 function StoryScreen({ route, navigation }) {
-  const routes = useRoute();
+  const router = useRoute();
 
   const {
     storyId = 1,
     chapterId = 1,
     author = '',
     name = '',
-    storyData = {},
+    storyData,
     nochapter = [],
     cachedIndex,
-  } = routes.params;
+  } = router.params;
 
   const [index, setIndex] = useState({
     story: initStoryIdx,
@@ -50,14 +49,16 @@ function StoryScreen({ route, navigation }) {
 
   const cacheData = useMemo(
     () => ({
-      // screenId: queryInfo.screenings?.[index.screen]?.id,
       storyId,
       chapterId,
       storyData,
       nochapter,
-      cachedIndex: index,
+      cachedIndex: {
+        story: index.story + 1,
+        screen: index.screen,
+      },
     }),
-    [queryInfo.screenings, index]
+    [queryInfo.screenings, index, router.params]
   );
   const onPressOption = (idx) => {
     if (idx) {
@@ -70,7 +71,6 @@ function StoryScreen({ route, navigation }) {
             id = i;
           }
         });
-        // if(index.story > id)
         setIndex((prev) => ({
           ...prev,
           story: id,
@@ -112,7 +112,6 @@ function StoryScreen({ route, navigation }) {
 
     fetchStories();
   }, [index.screen]);
-
   useEffect(() => {
     if (!queryInfo?.content || index?.story === null) return;
     if (queryInfo?.content[index.story]?.contentPresent === '結尾') {
@@ -120,14 +119,15 @@ function StoryScreen({ route, navigation }) {
         story: initStoryIdx,
         screen: prev.screen + 1,
       }));
-      setStory([]);
     } else if (index?.story === cachedIndex?.story) {
       setStory(queryInfo?.content?.slice(0, cachedIndex?.story + 1));
+    } else if (index?.story === 0) {
+      setStory([queryInfo?.content?.[index.story]]);
     } else {
       setStory((prev) => [...prev, queryInfo?.content?.[index.story]]);
     }
     return () => {
-      if (queryInfo.screenings?.[cachedIndex?.screen ?? index.screen]?.id) {
+      if (queryInfo?.content[index.story]?.order !== '999999') {
         storage.storeStory(cacheData, 'continueStory');
       } else {
         // 故事結束，儲存到再次回味畫面
@@ -135,7 +135,7 @@ function StoryScreen({ route, navigation }) {
 
         //故事結束，刪除繼續觀賞畫面
         storage.deleteStory({ storyId }, 'continueStory');
-        // navigation.goBack();
+        navigation.navigate(routes.MAIN);
       }
     };
   }, [index.story, queryInfo?.content]);
@@ -158,6 +158,7 @@ function StoryScreen({ route, navigation }) {
         const screenings = await axios.get(
           `http://api.xstudio-mclub.url.tw/api/v1/admin/screenings/${storyId}/${chapterId}`
         );
+
         const role = await axios.get(
           `http://api.xstudio-mclub.url.tw/api/v1/admin/role`
         );
@@ -165,15 +166,17 @@ function StoryScreen({ route, navigation }) {
           `http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story-role`
         );
 
-        const screenId = cachedIndex?.screen
-          ? screenings?.data?.[cachedIndex?.screen]?.id
-          : null;
+        const allScreenings = await axios.get(
+          `http://api.xstudio-mclub.url.tw/api/v1/admin/screenings/${storyId}`
+        );
 
-        if (screenId || screenings?.data?.length) {
+        const screenData = cachedIndex?.screen
+          ? screenings?.data?.[cachedIndex?.screen]
+          : screenings?.data?.[0] ?? allScreenings?.data?.[0];
+
+        if (screenData) {
           const content = await axios.get(
-            `http://api.xstudio-mclub.url.tw/api/v1/admin/content/${storyId}/${chapterId}/${
-              screenId ?? screenings?.data?.[0].id
-            }`
+            `http://api.xstudio-mclub.url.tw/api/v1/admin/content/${storyId}/${chapterId}/${screenData?.id}`
           );
           const storyContent = content?.data
             ?.slice()
@@ -181,13 +184,13 @@ function StoryScreen({ route, navigation }) {
 
           setQueryInfo({
             config: config?.data[0] ?? {},
-            screenings: screenings?.data ?? {},
+            screenings: screenings?.data ?? allScreenings?.data,
             role: role?.data ?? {},
             content: storyContent,
-            imageUrl:
-              domain + screenings?.data?.[cachedIndex?.screen ?? 0]?.bg_view,
+            imageUrl: domain + screenData?.bg_view,
             roleConf: roleConf?.data?.[0],
           });
+          setStory([]);
         }
       } catch (error) {
         console.error('API 請求失敗：', error);
