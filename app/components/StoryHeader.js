@@ -15,10 +15,10 @@ function StoryHeader({ storyName, author, config }) {
     stroy_name_weight,
   } = config ?? {
     author_color: '',
-    author_size: 15,
+    author_size: 20,
     author_weight: '粗',
     stroy_name_color: '',
-    stroy_name_size: 15,
+    stroy_name_size: 20,
     stroy_name_weight: '粗',
   };
 

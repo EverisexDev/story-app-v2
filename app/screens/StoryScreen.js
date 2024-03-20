@@ -129,6 +129,7 @@ function StoryScreen({ route, navigation }) {
     return () => {
       if (queryInfo?.content[index.story]?.order !== '999999') {
         storage.storeStory(cacheData, 'continueStory');
+        
       } else {
         // 故事結束，儲存到再次回味畫面
         storage.storeStory({ storyId, storyData, nochapter }, 'finishStory');
