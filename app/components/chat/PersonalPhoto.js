@@ -19,45 +19,67 @@ function PersonalPhoto(props) {
     role_foolproof_title,
     role_foolproof_content,
     roleConf,
-    showInfo,
-    // onPressOption,
+    role,
   } = props;
 
-  return (
-    <Pressable
-      onPress={() => {
-        showInfo
-          && Alert.alert(role_foolproof_title, role_infor, [
-              {
-                text: role_foolproof_content ?? '',
-                cancelable: true,
-              },
-            ])
-          // : onPressOption && onPressOption(null);
-      }}
-    >
-      <View style={styles.container}>
-        <Image
-          fadeDuration={0}
-          style={styles.img}
-          source={{ uri: domain + photo }}
-        />
-        <AppText
-          style={[
-            styles.nameText,
+  if (role !== '主角')
+    return (
+      <Pressable
+        onPress={() => {
+          Alert.alert(role_foolproof_title, role_infor, [
             {
-              color: roleConf?.role_name_color,
-              fontSize: roleConf?.role_name_size || 20,
-              ...(roleConf?.role_name_weight === '粗' && {
-                fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
-              }),
+              text: role_foolproof_content ?? '',
+              cancelable: true,
             },
-          ]}
-        >
-          {name}
-        </AppText>
-      </View>
-    </Pressable>
+          ]);
+          // : onPressOption && onPressOption(null);
+        }}
+      >
+        <View style={styles.container}>
+          <Image
+            fadeDuration={0}
+            style={styles.img}
+            source={{ uri: domain + photo }}
+          />
+          <AppText
+            style={[
+              styles.nameText,
+              {
+                color: roleConf?.role_name_color,
+                fontSize: roleConf?.role_name_size || 20,
+                ...(roleConf?.role_name_weight === '粗' && {
+                  fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
+                }),
+              },
+            ]}
+          >
+            {name}
+          </AppText>
+        </View>
+      </Pressable>
+    );
+  return (
+    <View style={styles.container}>
+      <Image
+        fadeDuration={0}
+        style={styles.img}
+        source={{ uri: domain + photo }}
+      />
+      <AppText
+        style={[
+          styles.nameText,
+          {
+            color: roleConf?.role_name_color,
+            fontSize: roleConf?.role_name_size || 20,
+            ...(roleConf?.role_name_weight === '粗' && {
+              fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
+            }),
+          },
+        ]}
+      >
+        {name}
+      </AppText>
+    </View>
   );
 }
 

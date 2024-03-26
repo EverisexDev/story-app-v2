@@ -17,7 +17,6 @@ function ChatSoundArea({ soundMsg, backgroundColor }) {
   }, [soundMsg]);
 
   useEffect(() => {
-    playSound();
     return () => {
       setTimeout(() => {
         try {
@@ -29,9 +28,7 @@ function ChatSoundArea({ soundMsg, backgroundColor }) {
   }, []);
 
   return (
-    <Pressable
-      onPress={playSound}
-    >
+    <Pressable onPress={playSound}>
       <View style={[styles.container, backgroundColor]}>
         <Image
           style={styles.img}

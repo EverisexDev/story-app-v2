@@ -14,22 +14,22 @@ function StoryHeader({ storyName, author, config }) {
     stroy_name_size,
     stroy_name_weight,
   } = config ?? {
-    author_color: '',
-    author_size: 15,
-    author_weight: '粗',
-    stroy_name_color: '',
-    stroy_name_size: 15,
-    stroy_name_weight: '粗',
+    // author_color: '',
+    // author_size: 20,
+    // author_weight: '粗',
+    // stroy_name_color: '',
+    // stroy_name_size: 20,
+    // stroy_name_weight: '粗',
   };
-
+  if (!author_size) return;
   return (
     <View style={styles.container}>
       <AppText
         style={[
-          defaultStyle.text,
+          // defaultStyle.text,
           styles.text,
           {
-            fontSize: stroy_name_size,
+            fontSize: stroy_name_size ?? 20,
             color: stroy_name_color?.trim() || '#fff',
             ...(stroy_name_weight === '粗' && {
               fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
@@ -41,10 +41,10 @@ function StoryHeader({ storyName, author, config }) {
       </AppText>
       <AppText
         style={[
-          defaultStyle.text,
+          // defaultStyle.text,
           styles.text,
           {
-            fontSize: author_size,
+            fontSize: author_size ?? 20,
             color: author_color || '#fff',
             ...(author_weight === '粗' && {
               fontWeight: Platform.OS === 'ios' ? 600 : 'bold',

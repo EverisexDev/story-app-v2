@@ -24,6 +24,7 @@ function Book(props) {
     showIcon = false,
     showReviewIcon,
     index,
+    cachedIndex,
   } = props;
   const {
     main_menu_name,
@@ -88,7 +89,23 @@ function Book(props) {
           if (!isOpen) return;
 
           if (showIcon) {
-            navigation.navigate(routes.STORY, storyPayload);
+            navigation.navigate(routes.STORY, {
+              ...storyPayload,
+              ...storyStatus?.read,
+              storyId: storyStatus?.read?.storyId ?? id,
+              chapterId: storyStatus?.read?.chapterId ?? chapter?.id,
+              cachedIndex
+            });
+          } else if (showReviewIcon) {
+            hasChapter
+              ? navigation.navigate(routes.CHAPTER, {
+                  name: main_menu_name,
+                  author,
+                  storyId: id,
+                  view_color,
+                  storyData,
+                })
+              : navigation.navigate(routes.STORY, storyPayload);
           } else {
             Alert.alert(
               main_menu_title,

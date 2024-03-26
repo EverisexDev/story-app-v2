@@ -31,13 +31,13 @@ function Chat({
   const LeftOrRight = () => {
     if (role !== '主角') {
       return (
-        <View style={[styles.chatLeft, imgMsg ? { height: 200 } : null]}>
+        <View style={[styles.chatLeft]}>
           <PersonalPhoto
             photo={roleData?.role_pic}
             name={roleData?.role_name}
             {...roleData}
             roleConf={roleConf}
-            showInfo={true}
+            role={role}
           />
           {textMsg ? (
             <ChatTextArea
@@ -114,8 +114,7 @@ function Chat({
             name={roleData?.role_name}
             {...roleData}
             roleConf={roleConf}
-            showInfo={false}
-            // onPressOption={onPressOption}
+            role={role}
           />
         </View>
       );

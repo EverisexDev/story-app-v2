@@ -103,7 +103,12 @@ function StoryScreen({ route, navigation }) {
               content: storyContent,
               imageUrl: domain + queryInfo?.screenings?.[index.screen]?.bg_view,
             }));
+            setStory([]);
           }
+        } else if (!_id && index.screen > 0) {
+          storage.storeStory({ storyId, storyData, nochapter }, 'finishStory');
+          storage.deleteStory({ storyId }, 'continueStory');
+          navigation.navigate(routes.MAIN);
         }
       } catch (error) {
         console.error('API 請求失敗：', error);
@@ -111,7 +116,8 @@ function StoryScreen({ route, navigation }) {
     };
 
     fetchStories();
-  }, [index.screen]);
+  }, [index.screen, queryInfo.screenings]);
+
   useEffect(() => {
     if (!queryInfo?.content || index?.story === null) return;
     if (queryInfo?.content[index.story]?.contentPresent === '結尾') {
@@ -166,32 +172,35 @@ function StoryScreen({ route, navigation }) {
           `http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story-role`
         );
 
-        const allScreenings = await axios.get(
-          `http://api.xstudio-mclub.url.tw/api/v1/admin/screenings/${storyId}`
-        );
+        // let allScreenings = {};
+        // if (!screenings?.data.length) {
+        //   allScreenings = await axios.get(
+        //     `http://api.xstudio-mclub.url.tw/api/v1/admin/screenings/${storyId}`
+        //   );
+        // }
+        const screenData = screenings?.data?.[cachedIndex?.screen ?? 0];
 
-        const screenData = cachedIndex?.screen
-          ? screenings?.data?.[cachedIndex?.screen]
-          : screenings?.data?.[0] ?? allScreenings?.data?.[0];
+        // if (screenData) {
+        // const content = await axios.get(
+        //   `http://api.xstudio-mclub.url.tw/api/v1/admin/content/1/3/60`
+        // );
+        // const content = await axios.get(
+        //   `http://api.xstudio-mclub.url.tw/api/v1/admin/content/${storyId}/${chapterId}/${screenData?.id}`
+        // // );
+        // const storyContent = content?.data
+        //   ?.slice()
+        //   .sort((a, b) => a?.order - b?.order);
 
-        if (screenData) {
-          const content = await axios.get(
-            `http://api.xstudio-mclub.url.tw/api/v1/admin/content/${storyId}/${chapterId}/${screenData?.id}`
-          );
-          const storyContent = content?.data
-            ?.slice()
-            .sort((a, b) => a?.order - b?.order);
-
-          setQueryInfo({
-            config: config?.data[0] ?? {},
-            screenings: screenings?.data ?? allScreenings?.data,
-            role: role?.data ?? {},
-            content: storyContent,
-            imageUrl: domain + screenData?.bg_view,
-            roleConf: roleConf?.data?.[0],
-          });
-          setStory([]);
-        }
+        setQueryInfo({
+          config: config?.data[0] ?? {},
+          screenings: screenings?.data ?? [], //allScreenings?.data,
+          role: role?.data ?? {},
+          // content: storyContent,
+          imageUrl: domain + screenData?.bg_view,
+          roleConf: roleConf?.data?.[0],
+        });
+        
+        // }
       } catch (error) {
         console.error('API 請求失敗：', error);
       }
