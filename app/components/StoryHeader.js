@@ -62,8 +62,8 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     height: 30,
-    paddingHorizontal: 15, //TODO: 調整寬度
-    // marginBottom:20,
+    paddingHorizontal: 15,
+    marginBottom:20,// 新增這個
     marginTop: 10,
     paddingBottom: 2,
     backgroundColor: colors.transparent,
