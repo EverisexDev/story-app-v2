@@ -31,7 +31,6 @@ function Narrator(props) {
   );
   return (
     <View style={[styles.contentContainer]}>
-      {/* <ImageModal ref={modalRef} imageUrl={imgUrl} /> */}
       {textMsg ? (
         <View
           style={{
@@ -80,6 +79,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     backgroundColor: colors.transparent,
     marginVertical: 3,
+    flex: 1,
   },
 });
 

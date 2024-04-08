@@ -29,7 +29,7 @@ function NarratorSound({ soundMsg }) {
   }, []);
 
   return (
-    <Pressable onPress={playSound}>
+    <Pressable onPress={playSound} style={{ flex: 1 }}>
       <Image
         style={styles.img}
         source={require('../../../assets/Sound-W.png')}

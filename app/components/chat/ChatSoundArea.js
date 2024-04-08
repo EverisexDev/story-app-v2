@@ -28,7 +28,7 @@ function ChatSoundArea({ soundMsg, backgroundColor }) {
   }, []);
 
   return (
-    <Pressable onPress={playSound}>
+    <Pressable onPress={playSound} style={{ flex: 1 }}>
       <View style={[styles.container, backgroundColor]}>
         <Image
           style={styles.img}

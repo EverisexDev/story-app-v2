@@ -20,11 +20,9 @@ function Book(props) {
     storyData = {},
     storyCache,
     nochapter,
-    view_color = '',
     showIcon = false,
     showReviewIcon,
     index,
-    cachedIndex,
   } = props;
   const {
     main_menu_name,
@@ -60,9 +58,7 @@ function Book(props) {
     const isNew = !(read || finish);
     return { read, finish, isNew };
   }, [storyCache]);
-
   const storyPayload = {
-    // ...storyStatus?.read,
     name: main_menu_name,
     author,
     storyId: id,
@@ -82,19 +78,19 @@ function Book(props) {
           //   name: main_menu_name,
           //   author,
           //   storyId: id,
-          //   view_color,
           // });
-          // navigation.navigate(routes.STORY, storyPayload);
+          // navigation.navigate(routes.STORY, {...storyPayload, ...storyStatus?.read});
           // return;
           if (!isOpen) return;
 
           if (showIcon) {
             navigation.navigate(routes.STORY, {
               ...storyPayload,
-              ...storyStatus?.read,
-              storyId: storyStatus?.read?.storyId ?? id,
-              chapterId: storyStatus?.read?.chapterId ?? chapter?.id,
-              cachedIndex
+              ...props,
+              // ...storyStatus?.read,
+              // storyId: storyStatus?.read?.storyId ?? id,
+              // chapterId: storyStatus?.read?.chapterId ?? chapter?.id,
+              // cachedIndex
             });
           } else if (showReviewIcon) {
             hasChapter
@@ -102,7 +98,6 @@ function Book(props) {
                   name: main_menu_name,
                   author,
                   storyId: id,
-                  view_color,
                   storyData,
                 })
               : navigation.navigate(routes.STORY, storyPayload);
@@ -119,7 +114,6 @@ function Book(props) {
                           name: main_menu_name,
                           author,
                           storyId: id,
-                          view_color,
                           storyData,
                         })
                       : navigation.navigate(routes.STORY, storyPayload);
@@ -131,8 +125,8 @@ function Book(props) {
                     navigation.navigate(routes.STORY, {
                       ...storyPayload,
                       ...storyStatus?.read,
-                      storyId: storyStatus?.read?.storyId ?? id,
-                      chapterId: storyStatus?.read?.chapterId ?? chapter?.id,
+                      // storyId: storyStatus?.read?.storyId ?? id,
+                      // chapterId: storyStatus?.read?.chapterId ?? chapter?.id,
                     }),
                 },
               ],

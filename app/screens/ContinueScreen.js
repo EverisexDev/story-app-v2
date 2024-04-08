@@ -37,9 +37,7 @@ function ContinueScreen() {
               numColumns={2}
               renderItem={({ item }) => (
                 <Book
-                  storyData={item?.storyData}
-                  cachedIndex={item?.cachedIndex}
-                  nochapter={item?.nochapter}
+                  {...item}
                   showIcon={true}
                 />
               )}

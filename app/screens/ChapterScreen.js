@@ -12,7 +12,7 @@ const ChapterScreen = () => {
   });
   const routes = useRoute();
 
-  const { name, author, storyId, storyData, nochapter, view_color } = useMemo(
+  const { name, author, storyId, storyData, nochapter } = useMemo(
     () => routes.params ?? { name: '', author: '', storyId: 1 },
     [routes.params]
   );
@@ -34,6 +34,9 @@ const ChapterScreen = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const UIConfig = await axios.get(
+          'http://api.xstudio-mclub.url.tw/api/v1/admin/menu'
+        );
         const chapterList = await axios.get(
           `http://api.xstudio-mclub.url.tw/api/v1/admin/chapter/${storyId}`
         );
@@ -51,6 +54,7 @@ const ChapterScreen = () => {
           toastConfig: toastConfig?.data?.[1] ?? {},
           uiConfig: uiConfig?.data?.[0] ?? {},
           storyConfig: storyConfig?.data[0] ?? [],
+          config: UIConfig?.data
         });
         // if (response?.data && Array.isArray(response.data)) {
         //   // const storyTypes = response.data[0];
@@ -67,7 +71,7 @@ const ChapterScreen = () => {
   }, []);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: view_color ?? '#fff' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: queryInfo?.config?.[0]?.view_color ?? '#fff' }}>
       <StoryHeader
         storyName={name}
         author={author}

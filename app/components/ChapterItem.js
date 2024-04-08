@@ -46,13 +46,13 @@ const ChapterItem = (props) => {
 
   const showAlert = () => {
     // navigation.navigate(routes.STORY, {
-    //   storyId: storyId,
+    //   storyId,
     //   chapterId: id,
     //   name: storyName,
     //   author,
     //   storyData,
     //   nochapter,
-    // })
+    // });
     // return;
     if (isFreeOpen) {
       Alert.alert(

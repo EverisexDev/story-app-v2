@@ -15,23 +15,26 @@ import StoryHeader from '../components/StoryHeader';
 import Chat from '../components/chat/Chat';
 import storage from '../storage/storage';
 import { useRoute } from '@react-navigation/native';
+import _ from 'lodash';
+import useStore from '../store/story';
 
 const domain = 'http://api.xstudio-mclub.url.tw/images/update/';
 const initStoryIdx = null;
 
 function StoryScreen({ route, navigation }) {
   const router = useRoute();
+  const imgSize = useStore((state) => state.imgSize);
+  const setImgSize = useStore((state) => state.setImgSize);
 
   const {
     storyId = 1,
-    chapterId = 1,
+    chapterId,
     author = '',
     name = '',
     storyData,
     nochapter = [],
     cachedIndex,
   } = router.params;
-
   const [index, setIndex] = useState({
     story: initStoryIdx,
     screen: 0,
@@ -46,7 +49,6 @@ function StoryScreen({ route, navigation }) {
   });
   const flatlistRef = useRef(null);
   const choseRef = useRef(false);
-
   const cacheData = useMemo(
     () => ({
       storyId,
@@ -54,11 +56,11 @@ function StoryScreen({ route, navigation }) {
       storyData,
       nochapter,
       cachedIndex: {
-        story: index.story + 1,
+        story: index.story,
         screen: index.screen,
       },
     }),
-    [queryInfo.screenings, index, router.params]
+    [queryInfo.screenings, index, router.params, chapterId]
   );
   const onPressOption = (idx) => {
     if (idx) {
@@ -84,6 +86,7 @@ function StoryScreen({ route, navigation }) {
       }));
     }
   };
+
   useEffect(() => {
     // set next scene
     const fetchStories = async () => {
@@ -126,8 +129,11 @@ function StoryScreen({ route, navigation }) {
         screen: prev.screen + 1,
       }));
     } else if (index?.story === cachedIndex?.story) {
+      //from cache
+      console.log(cachedIndex?.story)
       setStory(queryInfo?.content?.slice(0, cachedIndex?.story + 1));
     } else if (index?.story === 0) {
+      //init
       setStory([queryInfo?.content?.[index.story]]);
     } else {
       setStory((prev) => [...prev, queryInfo?.content?.[index.story]]);
@@ -137,14 +143,18 @@ function StoryScreen({ route, navigation }) {
         storage.storeStory(cacheData, 'continueStory');
       } else {
         // 故事結束，儲存到再次回味畫面
-        storage.storeStory({ storyId, storyData, nochapter }, 'finishStory');
+        if (storyData?.chapter_type === '章節') {
+          navigation.navigate(routes.CHAPTER);
+        } else {
+          storage.storeStory({ storyId, storyData, nochapter }, 'finishStory');
 
-        //故事結束，刪除繼續觀賞畫面
-        storage.deleteStory({ storyId }, 'continueStory');
-        navigation.navigate(routes.MAIN);
+          //故事結束，刪除繼續觀賞畫面
+          storage.deleteStory({ storyId }, 'continueStory');
+          navigation.navigate(routes.MAIN);
+        }
       }
     };
-  }, [index.story, queryInfo?.content]);
+  }, [index.story, queryInfo?.content, cachedIndex?.story]);
 
   useEffect(() => {
     if (!story?.length) return;
@@ -153,7 +163,7 @@ function StoryScreen({ route, navigation }) {
       animated: true,
       viewPosition: 1,
     });
-  }, [story]);
+  }, [story, imgSize]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -178,7 +188,7 @@ function StoryScreen({ route, navigation }) {
         //     `http://api.xstudio-mclub.url.tw/api/v1/admin/screenings/${storyId}`
         //   );
         // }
-        const screenData = screenings?.data?.[cachedIndex?.screen ?? 0];
+        const screenData = screenings?.data?.[cachedIndex?.screen];
 
         // if (screenData) {
         // const content = await axios.get(
@@ -199,7 +209,6 @@ function StoryScreen({ route, navigation }) {
           imageUrl: domain + screenData?.bg_view,
           roleConf: roleConf?.data?.[0],
         });
-        
         // }
       } catch (error) {
         console.error('API 請求失敗：', error);
@@ -235,7 +244,7 @@ function StoryScreen({ route, navigation }) {
           config={queryInfo?.config}
         />
         <Pressable
-          onPress={() => onPressOption(null)}
+          onPress={_.debounce(() => onPressOption(null), 100)}
           style={{
             flex: 1,
           }}
