@@ -43,8 +43,8 @@ function Book(props) {
   const navigation = useNavigation();
   const imageUri =
     'http://api.xstudio-mclub.url.tw/images/update/' + main_menu_image;
-  const hasChapter = chapter_type === '章節' ?? false;
-  const isOpen = open === '公開' ?? false;
+  const hasChapter = chapter_type === '章節';
+  const isOpen = open === '公開';
 
   const padImgStyle = screenWidth > 500 ? { width: 225, height: 330 } : {};
 
@@ -121,13 +121,20 @@ function Book(props) {
                 },
                 {
                   text: main_menu_btn_right,
-                  onPress: () =>
+                  onPress: () => {
+                    console.log({
+                      ...storyPayload,
+                      ...storyStatus?.read,
+                      storyId: storyStatus?.read?.storyId ?? id,
+                      chapterId: storyStatus?.read?.chapterId ?? chapter?.id,
+                    })
                     navigation.navigate(routes.STORY, {
                       ...storyPayload,
                       ...storyStatus?.read,
-                      // storyId: storyStatus?.read?.storyId ?? id,
-                      // chapterId: storyStatus?.read?.chapterId ?? chapter?.id,
-                    }),
+                      storyId: storyStatus?.read?.storyId ?? id,
+                      chapterId: storyStatus?.read?.chapterId ?? chapter?.id,
+                    });
+                  },
                 },
               ],
               {

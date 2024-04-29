@@ -26,16 +26,15 @@ function Chat({
   roleList,
   roleConf,
 }) {
-  
   const roleData = useMemo(() => {
     return roleList?.find((e) => e?.role_name?.trim() === roleName?.trim());
   }, [role, roleList]);
-  
+
   const imgSize = useStore((state) => state.imgSize);
   const setImgSize = useStore((state) => state.setImgSize);
 
   useEffect(() => {
-    if(!imgMsg) return
+    if (!imgMsg) return;
     const imageUrl = domain + imgMsg;
     Image.getSize(imageUrl, (width, height) => {
       let resizeRate =
@@ -88,11 +87,11 @@ function Chat({
             />
           ) : null}
           {imgMsg ? (
-              <ChatImageArea
-                imgMsg={imgMsg}
-                backgroundColor={styles.imgBackground}
-                imgSize={imgSize}
-              />
+            <ChatImageArea
+              imgMsg={imgMsg}
+              backgroundColor={styles.imgBackground}
+              imgSize={imgSize}
+            />
           ) : null}
           {videoMsg ? <ChatVideoArea videoMsg={videoMsg} /> : null}
         </View>
@@ -155,7 +154,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'flex-start',
     paddingVertical: 5,
-    // backgroundColor: colors.danger,
   },
   leftBackground: {
     backgroundColor: colors.leftChatBackground,

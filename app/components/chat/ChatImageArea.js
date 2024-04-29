@@ -1,7 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { View, StyleSheet, Pressable, Image, Dimensions } from 'react-native';
 import ImageModal from '../ImageModal';
-import useStore from '../../store/story';
 const screenWidth = Dimensions.get('window').width;
 
 const domain = 'http://api.xstudio-mclub.url.tw/images/update/';
@@ -25,16 +24,16 @@ function ChatImageArea({ imgMsg, backgroundColor, imgSize }) {
   // }, [imageUrl]);
 
   return (
-    <View style={[{ flex: 1 }, imgSize]}>
+    <View style={[{ flex: 1 }]}>
       <Pressable
         onPress={() => {
           modalRef.current?.toggle();
         }}
       >
-        <View style={[styles.container, backgroundColor, imgSize]}>
+        <View style={[styles.container, backgroundColor]}>
           <Image
             fadeDuration={0}
-            style={[styles.img, imgSize]}
+            style={[styles.img, { height: 300, ...imgSize }]}
             source={{ uri: imageUrl }}
             resizeMode='contain'
           />

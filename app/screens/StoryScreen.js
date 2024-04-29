@@ -19,7 +19,7 @@ import _ from 'lodash';
 import useStore from '../store/story';
 
 const domain = 'http://api.xstudio-mclub.url.tw/images/update/';
-const initStoryIdx = null;
+const initStoryIdx = 0;
 
 function StoryScreen({ route, navigation }) {
   const router = useRoute();
@@ -60,7 +60,7 @@ function StoryScreen({ route, navigation }) {
         screen: index.screen,
       },
     }),
-    [queryInfo.screenings, index, router.params, chapterId]
+    [queryInfo.screenings, index, router.params]
   );
   const onPressOption = (idx) => {
     if (idx) {
@@ -82,7 +82,7 @@ function StoryScreen({ route, navigation }) {
     } else {
       setIndex((prev) => ({
         ...prev,
-        story: index.story === null ? 0 : index.story + 1,
+        story: index.story + 1,
       }));
     }
   };
@@ -122,33 +122,23 @@ function StoryScreen({ route, navigation }) {
   }, [index.screen, queryInfo.screenings]);
 
   useEffect(() => {
-    if (!queryInfo?.content || index?.story === null) return;
-    if (queryInfo?.content[index.story]?.contentPresent === '結尾') {
+    if (!queryInfo?.content) return;
+    if (queryInfo?.content?.[index.story]?.contentPresent === '結尾') {
       setIndex((prev) => ({
         story: initStoryIdx,
         screen: prev.screen + 1,
       }));
-    } else if (index?.story === cachedIndex?.story) {
-      //from cache
-      console.log(cachedIndex?.story)
-      setStory(queryInfo?.content?.slice(0, cachedIndex?.story + 1));
-    } else if (index?.story === 0) {
-      //init
-      setStory([queryInfo?.content?.[index.story]]);
     } else {
-      setStory((prev) => [...prev, queryInfo?.content?.[index.story]]);
+      setStory(queryInfo?.content?.slice(0, index.story));
     }
     return () => {
       if (queryInfo?.content[index.story]?.order !== '999999') {
         storage.storeStory(cacheData, 'continueStory');
       } else {
-        // 故事結束，儲存到再次回味畫面
         if (storyData?.chapter_type === '章節') {
           navigation.navigate(routes.CHAPTER);
         } else {
           storage.storeStory({ storyId, storyData, nochapter }, 'finishStory');
-
-          //故事結束，刪除繼續觀賞畫面
           storage.deleteStory({ storyId }, 'continueStory');
           navigation.navigate(routes.MAIN);
         }
@@ -157,13 +147,13 @@ function StoryScreen({ route, navigation }) {
   }, [index.story, queryInfo?.content, cachedIndex?.story]);
 
   useEffect(() => {
-    if (!story?.length) return;
-    flatlistRef.current.scrollToIndex({
-      index: story.length - 1,
-      animated: true,
-      viewPosition: 1,
-    });
-  }, [story, imgSize]);
+    if (flatlistRef.current && story.length)
+      flatlistRef.current?.scrollToIndex({
+        index: story.length - 1,
+        animated: true,
+        viewPosition: 1,
+      });
+  }, [story]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -196,7 +186,7 @@ function StoryScreen({ route, navigation }) {
         // );
         // const content = await axios.get(
         //   `http://api.xstudio-mclub.url.tw/api/v1/admin/content/${storyId}/${chapterId}/${screenData?.id}`
-        // // );
+        // );
         // const storyContent = content?.data
         //   ?.slice()
         //   .sort((a, b) => a?.order - b?.order);
@@ -218,7 +208,7 @@ function StoryScreen({ route, navigation }) {
     fetchData();
     if (cachedIndex) {
       setIndex({
-        story: cachedIndex?.story ?? null,
+        story: cachedIndex?.story ?? initStoryIdx,
         screen: cachedIndex?.screen ?? 0,
       });
     }
@@ -258,7 +248,7 @@ function StoryScreen({ route, navigation }) {
             onScrollToIndexFailed={({ index, averageItemLength }) => {
               setTimeout(() => {
                 flatlistRef.current?.scrollToIndex({
-                  index,
+                  index: story.length - 1,
                   animated: true,
                 });
               }, 0);
@@ -276,7 +266,6 @@ function StoryScreen({ route, navigation }) {
                       roleList={queryInfo?.role}
                       index={index}
                       roleConf={queryInfo?.roleConf}
-                      // onPressOption={onPressOption}
                     />
                   ) : (
                     <Narrator

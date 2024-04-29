@@ -23,7 +23,6 @@ function Narrator(props) {
     textContentBaseColor,
     choseRef,
   } = props;
-  const modalRef = useRef(null);
 
   const imgUrl = useMemo(
     () => 'http://api.xstudio-mclub.url.tw/images/update/' + imgMsg,
@@ -34,7 +33,7 @@ function Narrator(props) {
       {textMsg ? (
         <View
           style={{
-            backgroundColor: textContentBaseColor,
+            backgroundColor: textContentBaseColor ?? 'transparent',
             borderRadius: 20,
             padding: 10,
           }}
