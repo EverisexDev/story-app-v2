@@ -19,7 +19,7 @@ import _ from 'lodash';
 import useStore from '../store/story';
 
 const domain = 'http://api.xstudio-mclub.url.tw/images/update/';
-const initStoryIdx = 0;
+const initStoryIdx = null;
 
 function StoryScreen({ route, navigation }) {
   const router = useRoute();
@@ -82,7 +82,7 @@ function StoryScreen({ route, navigation }) {
     } else {
       setIndex((prev) => ({
         ...prev,
-        story: index.story + 1,
+        story: index.story === null ? 0 : index.story + 1,
       }));
     }
   };
@@ -122,14 +122,14 @@ function StoryScreen({ route, navigation }) {
   }, [index.screen, queryInfo.screenings]);
 
   useEffect(() => {
-    if (!queryInfo?.content) return;
+    if (!queryInfo?.content || index?.story === null) return;
     if (queryInfo?.content?.[index.story]?.contentPresent === '結尾') {
       setIndex((prev) => ({
         story: initStoryIdx,
         screen: prev.screen + 1,
       }));
     } else {
-      setStory(queryInfo?.content?.slice(0, index.story));
+      setStory(queryInfo?.content?.slice(0, index.story + 1));
     }
     return () => {
       if (queryInfo?.content[index.story]?.order !== '999999') {
@@ -149,7 +149,7 @@ function StoryScreen({ route, navigation }) {
   useEffect(() => {
     if (flatlistRef.current && story.length)
       flatlistRef.current?.scrollToIndex({
-        index: story.length - 1,
+        index: story.length -1,
         animated: true,
         viewPosition: 1,
       });
