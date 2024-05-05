@@ -7,6 +7,7 @@ import NarratorSound from './NarratorSound';
 import NarratorVideo from './NarratorVideo';
 import NarratorOption from './NarratorOption';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
+import useStore from '../../store/story';
 
 function Narrator(props) {
   const {
@@ -23,7 +24,7 @@ function Narrator(props) {
     textContentBaseColor,
     choseRef,
   } = props;
-
+  const imgSize = useStore((state) => state.imgSize);
   const imgUrl = useMemo(
     () => 'http://api.xstudio-mclub.url.tw/images/update/' + imgMsg,
     [imgMsg]
@@ -54,8 +55,9 @@ function Narrator(props) {
       ) : null}
       {imgMsg ? (
         <Image
-          style={{ width: wp('100%'), height: 200 }}
+          style={{ width: wp('100%'), height: 200, ...imgSize }}
           source={{ uri: imgUrl }}
+          resizeMode='cover'
         />
       ) : null}
       {soundMsg ? <NarratorSound soundMsg={soundMsg} /> : null}

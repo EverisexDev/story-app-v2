@@ -58,6 +58,7 @@ function Book(props) {
     const isNew = !(read || finish);
     return { read, finish, isNew };
   }, [storyCache]);
+
   const storyPayload = {
     name: main_menu_name,
     author,
@@ -86,11 +87,11 @@ function Book(props) {
           if (showIcon) {
             navigation.navigate(routes.STORY, {
               ...storyPayload,
+              ...(storyStatus && storyStatus?.read),
               ...props,
-              // ...storyStatus?.read,
-              // storyId: storyStatus?.read?.storyId ?? id,
-              // chapterId: storyStatus?.read?.chapterId ?? chapter?.id,
-              // cachedIndex
+              storyId: storyStatus?.read?.storyId ?? id,
+              chapterId:
+                storyStatus?.read?.chapterId ?? props?.chapterId ?? chapter?.id,
             });
           } else if (showReviewIcon) {
             hasChapter
@@ -122,17 +123,15 @@ function Book(props) {
                 {
                   text: main_menu_btn_right,
                   onPress: () => {
-                    console.log({
-                      ...storyPayload,
-                      ...storyStatus?.read,
-                      storyId: storyStatus?.read?.storyId ?? id,
-                      chapterId: storyStatus?.read?.chapterId ?? chapter?.id,
-                    })
                     navigation.navigate(routes.STORY, {
                       ...storyPayload,
-                      ...storyStatus?.read,
+                      ...(storyStatus && storyStatus?.read),
+                      ...props,
                       storyId: storyStatus?.read?.storyId ?? id,
-                      chapterId: storyStatus?.read?.chapterId ?? chapter?.id,
+                      chapterId:
+                        storyStatus?.read?.chapterId ??
+                        props?.chapterId ??
+                        chapter?.id,
                     });
                   },
                 },
@@ -243,6 +242,8 @@ const styles = StyleSheet.create({
     zIndex: 1,
     marginLeft: 55,
     marginTop: 95,
+    width: 35,
+    height: 35,
   },
   lockIcon: {
     width: 40,

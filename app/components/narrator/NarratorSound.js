@@ -33,15 +33,16 @@ function NarratorSound({ soundMsg }) {
       <Image
         style={styles.img}
         source={require('../../../assets/Sound-W.png')}
+        resizeMode='contain'
       />
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {},
   img: {
     width: 200,
+    height: 60,
   },
 });
 

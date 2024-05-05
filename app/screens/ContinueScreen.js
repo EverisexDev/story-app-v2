@@ -22,7 +22,6 @@ function ContinueScreen() {
     }
     getStories();
   }, [isFocus]);
-
   return (
     <Screen>
       <AppHeader />

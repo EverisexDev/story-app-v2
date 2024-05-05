@@ -133,7 +133,16 @@ function StoryScreen({ route, navigation }) {
     }
     return () => {
       if (queryInfo?.content[index.story]?.order !== '999999') {
-        storage.storeStory(cacheData, 'continueStory');
+        storage.storeStory(
+          {
+            ...cacheData,
+            cachedIndex: {
+              story: index.story + 1,
+              screen: index.screen,
+            },
+          },
+          'continueStory'
+        );
       } else {
         if (storyData?.chapter_type === '章節') {
           navigation.navigate(routes.CHAPTER);
@@ -149,7 +158,7 @@ function StoryScreen({ route, navigation }) {
   useEffect(() => {
     if (flatlistRef.current && story.length)
       flatlistRef.current?.scrollToIndex({
-        index: story.length -1,
+        index: story.length - 1,
         animated: true,
         viewPosition: 1,
       });
