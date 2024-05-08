@@ -33,7 +33,7 @@ function StoryScreen({ route, navigation }) {
     name = '',
     storyData,
     nochapter = [],
-    cachedIndex,
+    cachedIndex = 1,
   } = router.params;
   const [index, setIndex] = useState({
     story: initStoryIdx,
@@ -215,14 +215,11 @@ function StoryScreen({ route, navigation }) {
     };
 
     fetchData();
-    if (cachedIndex) {
-      setIndex({
-        story: cachedIndex?.story ?? initStoryIdx,
-        screen: cachedIndex?.screen ?? 0,
-      });
-    }
-  }, [cachedIndex]);
-
+    setIndex({
+      story: cachedIndex?.story ?? initStoryIdx,
+      screen: cachedIndex?.screen ?? 0,
+    });
+  }, []);
   return (
     <ImageBackground
       fadeDuration={2000}

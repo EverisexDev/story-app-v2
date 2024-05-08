@@ -86,21 +86,23 @@ function HomeScreen() {
         }}
       >
         <AppHeader />
-        <AppText
-          style={{
-            flex: 1,
-            flexWrap: 'wrap',
-            color: storyInfo.config?.[0]?.news_color ?? '#fff',
-            marginLeft: 20,
-            fontSize: storyInfo.config?.[0]?.news_font_size ?? 20,
-            ...(storyInfo.config?.[0]?.news_weight === '粗' && {
-              fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
-            }),
-          }}
-          // numberOfLines={1}
-        >
-          {storyInfo.news}
-        </AppText>
+        {/* <Pressable onPress={() => storage.deleteAllStorage()}> */}
+          <AppText
+            style={{
+              flex: 1,
+              flexWrap: 'wrap',
+              color: storyInfo.config?.[0]?.news_color ?? '#fff',
+              marginLeft: 20,
+              fontSize: storyInfo.config?.[0]?.news_font_size ?? 20,
+              ...(storyInfo.config?.[0]?.news_weight === '粗' && {
+                fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
+              }),
+            }}
+            // numberOfLines={1}
+          >
+            {storyInfo.news}
+          </AppText>
+        {/* </Pressable> */}
       </View>
       <Content>
         <FlatList

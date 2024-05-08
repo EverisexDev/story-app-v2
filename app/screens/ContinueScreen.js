@@ -20,7 +20,7 @@ function ContinueScreen() {
       const continueStory = await storage.getStorys('continueStory');
       setStoryCache({ continueStory });
     }
-    getStories();
+    getStories(!storyCache?.continueStory );
   }, [isFocus]);
   return (
     <Screen>
