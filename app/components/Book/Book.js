@@ -23,6 +23,7 @@ function Book(props) {
     showIcon = false,
     showReviewIcon,
     index,
+    chapterId,
   } = props;
   const {
     main_menu_name,
@@ -62,8 +63,8 @@ function Book(props) {
   const storyPayload = {
     name: main_menu_name,
     author,
-    storyId: storyStatus?.read?.storyId ?? id,
-    chapterId: storyStatus?.read?.chapterId ?? props?.chapterId ?? chapter?.id,
+    storyId: id,
+    chapterId: chapterId ?? chapter?.id,
     storyData,
     nochapter,
   };
@@ -85,13 +86,10 @@ function Book(props) {
           if (!isOpen) return;
 
           if (showIcon) {
+            console.log(id);
             navigation.navigate(routes.STORY, {
-              ...storyPayload,
-              ...(storyStatus && storyStatus?.read),
               ...props,
-              storyId: storyStatus?.read?.storyId ?? id,
-              chapterId:
-                storyStatus?.read?.chapterId ?? props?.chapterId ?? chapter?.id,
+              ...storyPayload,
             });
           } else if (showReviewIcon) {
             hasChapter
@@ -123,17 +121,7 @@ function Book(props) {
                 {
                   text: main_menu_btn_right,
                   onPress: () => {
-                    navigation.navigate(routes.CONTINUE)
-                    // navigation.navigate(routes.STORY, {
-                    //   ...storyPayload,
-                    //   ...(storyStatus && storyStatus?.read),
-                    //   ...props,
-                    //   storyId: storyStatus?.read?.storyId ?? id,
-                    //   chapterId:
-                    //     storyStatus?.read?.chapterId ??
-                    //     props?.chapterId ??
-                    //     chapter?.id,
-                    // });
+                    navigation.navigate(routes.CONTINUE);
                   },
                 },
               ],

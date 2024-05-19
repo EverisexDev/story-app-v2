@@ -86,7 +86,7 @@ function HomeScreen() {
         }}
       >
         <AppHeader />
-        {/* <Pressable onPress={() => storage.deleteAllStorage()}> */}
+        <Pressable onPress={() => storage.deleteAllStorage()}>
           <AppText
             style={{
               flex: 1,
@@ -102,7 +102,7 @@ function HomeScreen() {
           >
             {storyInfo.news}
           </AppText>
-        {/* </Pressable> */}
+        </Pressable>
       </View>
       <Content>
         <FlatList

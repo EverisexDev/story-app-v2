@@ -55,9 +55,8 @@ function Narrator(props) {
       ) : null}
       {imgMsg ? (
         <Image
-          style={{ width: wp('100%'), height: 200, ...imgSize }}
+          style={{ width: wp('100%'), height: 200 }}
           source={{ uri: imgUrl }}
-          resizeMode='cover'
         />
       ) : null}
       {soundMsg ? <NarratorSound soundMsg={soundMsg} /> : null}

@@ -17,6 +17,7 @@ import storage from '../storage/storage';
 import { useRoute } from '@react-navigation/native';
 import _ from 'lodash';
 import useStore from '../store/story';
+import { useIsFocused } from '@react-navigation/native';
 
 const domain = 'http://api.xstudio-mclub.url.tw/images/update/';
 const initStoryIdx = null;
@@ -25,7 +26,7 @@ function StoryScreen({ route, navigation }) {
   const router = useRoute();
   const imgSize = useStore((state) => state.imgSize);
   const setImgSize = useStore((state) => state.setImgSize);
-
+  const isFocus = useIsFocused();
   const {
     storyId = 1,
     chapterId,
@@ -156,12 +157,15 @@ function StoryScreen({ route, navigation }) {
   }, [index.story, queryInfo?.content, cachedIndex?.story]);
 
   useEffect(() => {
-    if (flatlistRef.current && story.length)
-      flatlistRef.current?.scrollToIndex({
-        index: story.length - 1,
-        animated: true,
-        viewPosition: 1,
-      });
+    if (flatlistRef.current && story.length) {
+      setTimeout(() => {
+        flatlistRef.current?.scrollToItem({
+          item: story[index.story] ?? {},
+          animated: true,
+          viewPosition: 0.5,
+        });
+      }, 0);
+    }
   }, [story]);
 
   useEffect(() => {
@@ -219,7 +223,7 @@ function StoryScreen({ route, navigation }) {
       story: cachedIndex?.story ?? initStoryIdx,
       screen: cachedIndex?.screen ?? 0,
     });
-  }, []);
+  }, [isFocus]);
   return (
     <ImageBackground
       fadeDuration={2000}
@@ -251,11 +255,12 @@ function StoryScreen({ route, navigation }) {
             keyExtractor={(item, index) => index.toString()}
             scrollEnabled={true}
             showsVerticalScrollIndicator={false}
-            onScrollToIndexFailed={({ index, averageItemLength }) => {
+            onScrollToIndexFailed={({ index }) => {
               setTimeout(() => {
-                flatlistRef.current?.scrollToIndex({
-                  index: story.length - 1,
+                flatlistRef.current?.scrollToItem({
+                  item: story[index] ?? {},
                   animated: true,
+                  viewPosition: 1,
                 });
               }, 0);
             }}
