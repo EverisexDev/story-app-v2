@@ -109,7 +109,7 @@ function StoryScreen({ route, navigation }) {
             }));
             setStory([]);
           }
-        } else if (!_id && index.screen > 0) {
+        } else if (!_id && index.screen >= queryInfo.screenings.length) {
           storage.storeStory({ storyId, storyData, nochapter }, 'finishStory');
           storage.deleteStory({ storyId }, 'continueStory');
           navigation.navigate(routes.MAIN);
@@ -118,8 +118,7 @@ function StoryScreen({ route, navigation }) {
         console.error('API 請求失敗：', error);
       }
     };
-
-    fetchStories();
+    if (queryInfo.screenings) fetchStories();
   }, [index.screen, queryInfo.screenings]);
 
   useEffect(() => {
@@ -162,7 +161,7 @@ function StoryScreen({ route, navigation }) {
         flatlistRef.current?.scrollToItem({
           item: story[index.story] ?? {},
           animated: true,
-          viewPosition: 0.5,
+          viewPosition: 0,
         });
       }, 0);
     }
@@ -260,7 +259,7 @@ function StoryScreen({ route, navigation }) {
                 flatlistRef.current?.scrollToItem({
                   item: story[index] ?? {},
                   animated: true,
-                  viewPosition: 1,
+                  viewPosition: 0,
                 });
               }, 0);
             }}
