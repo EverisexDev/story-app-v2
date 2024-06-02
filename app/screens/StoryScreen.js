@@ -24,8 +24,6 @@ const initStoryIdx = null;
 
 function StoryScreen({ route, navigation }) {
   const router = useRoute();
-  const imgSize = useStore((state) => state.imgSize);
-  const setImgSize = useStore((state) => state.setImgSize);
   const isFocus = useIsFocused();
   const {
     storyId = 1,
@@ -34,7 +32,7 @@ function StoryScreen({ route, navigation }) {
     name = '',
     storyData,
     nochapter = [],
-    cachedIndex = 1,
+    cachedIndex = null,
   } = router.params;
   const [index, setIndex] = useState({
     story: initStoryIdx,
@@ -50,6 +48,7 @@ function StoryScreen({ route, navigation }) {
   });
   const flatlistRef = useRef(null);
   const choseRef = useRef(false);
+  const initRef = useRef(false);
   const cacheData = useMemo(
     () => ({
       storyId,
@@ -129,7 +128,12 @@ function StoryScreen({ route, navigation }) {
         screen: prev.screen + 1,
       }));
     } else {
-      setStory(queryInfo?.content?.slice(0, index.story + 1));
+      if (initRef.current) {
+        setStory(queryInfo?.content?.slice(0, index.story + 1));
+        initRef.current = false;
+      } else {
+        setStory((prev) => [...prev, queryInfo?.content?.[index.story]]);
+      }
     }
     return () => {
       if (queryInfo?.content[index.story]?.order !== '999999') {
@@ -137,18 +141,19 @@ function StoryScreen({ route, navigation }) {
           {
             ...cacheData,
             cachedIndex: {
-              story: index.story + 1,
+              story: index.story,
               screen: index.screen,
             },
           },
           'continueStory'
         );
+        storage.deleteStory({ storyId }, 'finishStory');
       } else {
         if (storyData?.chapter_type === '章節') {
           navigation.navigate(routes.CHAPTER);
         } else {
-          storage.storeStory({ storyId, storyData, nochapter }, 'finishStory');
           storage.deleteStory({ storyId }, 'continueStory');
+          storage.storeStory({ storyId, storyData, nochapter }, 'finishStory');
           navigation.navigate(routes.MAIN);
         }
       }
@@ -163,9 +168,9 @@ function StoryScreen({ route, navigation }) {
           animated: true,
           viewPosition: 0,
         });
-      }, 0);
+      }, 100);
     }
-  }, [story]);
+  }, [index.story, story]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -190,7 +195,7 @@ function StoryScreen({ route, navigation }) {
         //     `http://api.xstudio-mclub.url.tw/api/v1/admin/screenings/${storyId}`
         //   );
         // }
-        const screenData = screenings?.data?.[cachedIndex?.screen];
+        const screenData = screenings?.data?.[cachedIndex?.screen ?? 0];
 
         // if (screenData) {
         // const content = await axios.get(
@@ -216,7 +221,7 @@ function StoryScreen({ route, navigation }) {
         console.error('API 請求失敗：', error);
       }
     };
-
+    if (cachedIndex) initRef.current = true;
     fetchData();
     setIndex({
       story: cachedIndex?.story ?? initStoryIdx,
@@ -243,7 +248,7 @@ function StoryScreen({ route, navigation }) {
           config={queryInfo?.config}
         />
         <Pressable
-          onPress={_.debounce(() => onPressOption(null), 100)}
+          onPress={_.debounce(() => onPressOption(null), 500)}
           style={{
             flex: 1,
           }}
@@ -259,7 +264,7 @@ function StoryScreen({ route, navigation }) {
                 flatlistRef.current?.scrollToItem({
                   item: story[index] ?? {},
                   animated: true,
-                  viewPosition: 0,
+                  viewPosition: 0.5,
                 });
               }, 0);
             }}

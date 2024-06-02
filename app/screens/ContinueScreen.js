@@ -10,6 +10,7 @@ import AppText from '../components/AppText';
 import storage from '../storage/storage';
 import Book from '../components/Book/Book';
 import colors from '../config/colors';
+import { isEmpty } from 'lodash';
 
 function ContinueScreen() {
   const [storyCache, setStoryCache] = useState(null);
@@ -20,26 +21,21 @@ function ContinueScreen() {
       const continueStory = await storage.getStorys('continueStory');
       setStoryCache({ continueStory });
     }
-    getStories(!storyCache?.continueStory );
+    getStories(!storyCache?.continueStory);
   }, [isFocus]);
   return (
     <Screen>
       <AppHeader />
       <Content>
         <View style={styles.books}>
-          {!storyCache?.continueStory ? (
+          {!storyCache?.continueStory || isEmpty(storyCache?.continueStory) ? (
             <AppText style={styles.noBooks}>尚未閱覽任何書籍</AppText>
           ) : (
             <FlatList
               data={storyCache?.continueStory ?? []}
               keyExtractor={(item) => item?.storyId?.toString()}
               numColumns={2}
-              renderItem={({ item }) => (
-                <Book
-                  {...item}
-                  showIcon={true}
-                />
-              )}
+              renderItem={({ item }) => <Book {...item} showIcon={true} />}
             />
           )}
         </View>

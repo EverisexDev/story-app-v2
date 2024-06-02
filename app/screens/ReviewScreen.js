@@ -11,6 +11,7 @@ import Content from './Content';
 import colors from '../config/colors';
 import storage from '../storage/storage';
 import Book from '../components/Book/Book';
+import { isEmpty } from 'lodash';
 
 function ReviewScreen() {
   const [storyCache, setStoryCache] = useState(null);
@@ -23,13 +24,13 @@ function ReviewScreen() {
     }
     getStories();
   }, [isFocus]);
-  
+
   return (
     <Screen>
       <AppHeader />
       <Content>
         <View style={styles.books}>
-          {!storyCache ? (
+          {!storyCache || isEmpty(storyCache) ? (
             <AppText style={styles.noBooks}>尚未看完任何書籍</AppText>
           ) : (
             <FlatList
@@ -37,7 +38,11 @@ function ReviewScreen() {
               keyExtractor={(item) => item?.id?.toString()}
               numColumns={2}
               renderItem={({ item }) => (
-                <Book storyData={item?.storyData} nochapter={item?.nochapter} showReviewIcon={true}/>
+                <Book
+                  storyData={item?.storyData}
+                  nochapter={item?.nochapter}
+                  showReviewIcon={true}
+                />
               )}
             />
           )}
