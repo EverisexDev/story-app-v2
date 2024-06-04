@@ -248,7 +248,7 @@ function StoryScreen({ route, navigation }) {
           config={queryInfo?.config}
         />
         <Pressable
-          onPress={_.debounce(() => onPressOption(null), 500)}
+          onPress={_.debounce(() => onPressOption(null), 100)}
           style={{
             flex: 1,
           }}
