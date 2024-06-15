@@ -86,7 +86,6 @@ function Book(props) {
           if (!isOpen) return;
 
           if (showIcon) {
-            console.log(id);
             navigation.navigate(routes.STORY, {
               ...props,
               ...storyPayload,

@@ -35,6 +35,8 @@ const ImageModal = (props, ref) => {
         isVisible={modalVisible}
         onBackdropPress={toggleModal}
         backdropOpacity={1}
+        animationOut='fadeOut'
+        animationIn='fadeIn'
       >
         <AppCloseX onPress={toggleModal} />
         <View style={styles.container}>

@@ -30,7 +30,7 @@ function Narrator(props) {
     [imgMsg]
   );
   return (
-    <View style={[styles.contentContainer]}>
+    <Pressable style={[styles.contentContainer]} onPress={()=>onPressOption(null)}>
       {textMsg ? (
         <View
           style={{
@@ -70,7 +70,7 @@ function Narrator(props) {
           choseRef={choseRef}
         />
       ) : null}
-    </View>
+    </Pressable>
   );
 }
 

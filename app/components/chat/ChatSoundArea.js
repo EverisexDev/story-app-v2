@@ -20,7 +20,7 @@ function ChatSoundArea({ soundMsg, backgroundColor }) {
     return () => {
       setTimeout(() => {
         try {
-          console.log('Unloading Sound');
+          // console.log('Unloading Sound');
           sound?.unloadAsync();
         } catch {}
       }, 40000);

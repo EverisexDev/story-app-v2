@@ -62,6 +62,9 @@ function StoryScreen({ route, navigation }) {
     }),
     [queryInfo.screenings, index, router.params]
   );
+  const imgSize = useStore((state) => state.imgSize);
+  const setImgSize = useStore((state) => state.setImgSize);
+
   const onPressOption = (idx) => {
     if (idx) {
       if (choseRef.current) {
@@ -109,9 +112,16 @@ function StoryScreen({ route, navigation }) {
             setStory([]);
           }
         } else if (!_id && index.screen >= queryInfo.screenings.length) {
-          storage.storeStory({ storyId, storyData, nochapter }, 'finishStory');
-          storage.deleteStory({ storyId }, 'continueStory');
-          navigation.navigate(routes.MAIN);
+          if (storyData?.chapter_type === '章節') {
+            navigation.navigate(routes.CHAPTER);
+          } else {
+            storage.deleteStory({ storyId }, 'continueStory');
+            storage.storeStory(
+              { storyId, storyData, nochapter },
+              'finishStory'
+            );
+            navigation.navigate(routes.MAIN);
+          }
         }
       } catch (error) {
         console.error('API 請求失敗：', error);
@@ -133,10 +143,6 @@ function StoryScreen({ route, navigation }) {
         initRef.current = false;
       } else {
         setStory((prev) => [...prev, queryInfo?.content?.[index.story]]);
-      }
-    }
-    return () => {
-      if (queryInfo?.content[index.story]?.order !== '999999') {
         storage.storeStory(
           {
             ...cacheData,
@@ -147,24 +153,15 @@ function StoryScreen({ route, navigation }) {
           },
           'continueStory'
         );
-        storage.deleteStory({ storyId }, 'finishStory');
-      } else {
-        if (storyData?.chapter_type === '章節') {
-          navigation.navigate(routes.CHAPTER);
-        } else {
-          storage.deleteStory({ storyId }, 'continueStory');
-          storage.storeStory({ storyId, storyData, nochapter }, 'finishStory');
-          navigation.navigate(routes.MAIN);
-        }
       }
-    };
+    }
   }, [index.story, queryInfo?.content, cachedIndex?.story]);
 
   useEffect(() => {
     if (flatlistRef.current && story.length) {
       setTimeout(() => {
         flatlistRef.current?.scrollToItem({
-          item: story[index.story] ?? {},
+          item: queryInfo?.content?.[index.story] ?? {},
           animated: true,
           viewPosition: 0,
         });
@@ -227,7 +224,7 @@ function StoryScreen({ route, navigation }) {
       story: cachedIndex?.story ?? initStoryIdx,
       screen: cachedIndex?.screen ?? 0,
     });
-  }, [isFocus]);
+  }, []);
   return (
     <ImageBackground
       fadeDuration={2000}
@@ -279,6 +276,7 @@ function StoryScreen({ route, navigation }) {
                       soundMsg={item?.voice}
                       videoMsg={item?.video}
                       roleList={queryInfo?.role}
+                      onPressOption={onPressOption}
                       index={index}
                       roleConf={queryInfo?.roleConf}
                     />

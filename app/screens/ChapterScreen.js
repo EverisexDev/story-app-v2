@@ -54,7 +54,7 @@ const ChapterScreen = () => {
           toastConfig: toastConfig?.data?.[1] ?? {},
           uiConfig: uiConfig?.data?.[0] ?? {},
           storyConfig: storyConfig?.data[0] ?? [],
-          config: UIConfig?.data
+          config: UIConfig?.data,
         });
         // if (response?.data && Array.isArray(response.data)) {
         //   // const storyTypes = response.data[0];
@@ -71,7 +71,12 @@ const ChapterScreen = () => {
   }, []);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: queryInfo?.config?.[0]?.view_color ?? '#fff' }}>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        backgroundColor: queryInfo?.config?.[0]?.view_color ?? '#fff',
+      }}
+    >
       <StoryHeader
         storyName={name}
         author={author}

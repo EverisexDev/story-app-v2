@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { View, StyleSheet, Dimensions, Image } from 'react-native';
+import { View, StyleSheet, Dimensions, Image, Pressable } from 'react-native';
 
 import colors from '../../config/colors';
 import ChatImageArea from './ChatImageArea';
@@ -9,6 +9,7 @@ import ChatTextArea from './ChatTextArea';
 import ChatVideoArea from './ChatVideoArea';
 import PersonalPhoto from './PersonalPhoto';
 import useStore from '../../store/story';
+
 const domain = 'http://api.xstudio-mclub.url.tw/images/update/';
 const screenWidth = Dimensions.get('window').width;
 
@@ -25,6 +26,7 @@ function Chat({
   roleName,
   roleList,
   roleConf,
+  onPressOption,
 }) {
   const roleData = useMemo(() => {
     return roleList?.find((e) => e?.role_name?.trim() === roleName?.trim());
@@ -35,6 +37,7 @@ function Chat({
 
   useEffect(() => {
     if (!imgMsg) return;
+    if (imgSize) setImgSize(null);
     const imageUrl = domain + imgMsg;
     Image.getSize(imageUrl, (width, height) => {
       let resizeRate =
@@ -141,7 +144,11 @@ function Chat({
       );
     }
   };
-  return <LeftOrRight />;
+  return (
+    <Pressable onPress={() => onPressOption(null)}>
+      <LeftOrRight />
+    </Pressable>
+  );
 }
 
 const styles = StyleSheet.create({
