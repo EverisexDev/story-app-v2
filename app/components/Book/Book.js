@@ -67,6 +67,7 @@ function Book(props) {
     chapterId: chapterId ?? chapter?.id,
     storyData,
     nochapter,
+    read_range_end: chapter?.read_range_end
   };
 
   if (lang !== '繁體中文') return;

@@ -33,6 +33,7 @@ function StoryScreen({ route, navigation }) {
     storyData,
     nochapter = [],
     cachedIndex = null,
+    read_range_end,
   } = router.params;
   const [index, setIndex] = useState({
     story: initStoryIdx,
@@ -54,6 +55,7 @@ function StoryScreen({ route, navigation }) {
       storyId,
       chapterId,
       storyData,
+      read_range_end,
       nochapter,
       cachedIndex: {
         story: index.story,
@@ -62,8 +64,6 @@ function StoryScreen({ route, navigation }) {
     }),
     [queryInfo.screenings, index, router.params]
   );
-  const imgSize = useStore((state) => state.imgSize);
-  const setImgSize = useStore((state) => state.setImgSize);
 
   const onPressOption = (idx) => {
     if (idx) {
@@ -207,7 +207,9 @@ function StoryScreen({ route, navigation }) {
 
         setQueryInfo({
           config: config?.data[0] ?? {},
-          screenings: screenings?.data ?? [], //allScreenings?.data,
+          screenings: read_range_end
+            ? screenings?.data.slice(0, +read_range_end)
+            : screenings?.data ?? [],
           role: role?.data ?? {},
           // content: storyContent,
           imageUrl: domain + screenData?.bg_view,
