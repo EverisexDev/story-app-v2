@@ -1,18 +1,23 @@
 import React, { useRef } from 'react';
 import { View, StyleSheet, Pressable, Image, Dimensions } from 'react-native';
 import ImageModal from '../ImageModal';
+import { useNavigation } from '@react-navigation/native';
+import routes from '../../navigations/routes';
 
 const domain = 'http://api.xstudio-mclub.url.tw/images/update/';
 
 function ChatImageArea({ imgMsg, backgroundColor, imgSize }) {
   const imageUrl = domain + imgMsg;
   const modalRef = useRef(null);
-
+  const navigation = useNavigation();
   return (
     <View style={[{ flex: 1 }]}>
       <Pressable
         onPress={() => {
-          modalRef.current?.toggle();
+          navigation.navigate(routes.IMAGE, {
+            img: imageUrl,
+          });
+          // modalRef.current?.toggle();
         }}
       >
         <View style={[styles.container, backgroundColor]}>

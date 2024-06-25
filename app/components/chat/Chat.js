@@ -50,9 +50,10 @@ function Chat({
     });
   }, [imgMsg]);
 
-  const LeftOrRight = () => {
-    if (role !== '主角') {
-      return (
+
+  return (
+    <Pressable onPress={() => onPressOption(null)}>
+      {role !== '主角' ? (
         <View style={[styles.chatLeft]}>
           <PersonalPhoto
             photo={roleData?.role_pic}
@@ -98,9 +99,7 @@ function Chat({
           ) : null}
           {videoMsg ? <ChatVideoArea videoMsg={videoMsg} /> : null}
         </View>
-      );
-    } else {
-      return (
+      ) : (
         <View style={[styles.chatRight]}>
           {textMsg ? (
             <ChatTextArea
@@ -141,12 +140,7 @@ function Chat({
             role={role}
           />
         </View>
-      );
-    }
-  };
-  return (
-    <Pressable onPress={() => onPressOption(null)}>
-      <LeftOrRight />
+      )}
     </Pressable>
   );
 }

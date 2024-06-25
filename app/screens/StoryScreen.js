@@ -167,7 +167,7 @@ function StoryScreen({ route, navigation }) {
         });
       }, 100);
     }
-  }, [index.story, story]);
+  }, [index.story, story, queryInfo?.content]);
 
   useEffect(() => {
     const fetchData = async () => {

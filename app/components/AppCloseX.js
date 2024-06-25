@@ -9,16 +9,14 @@ function AppCloseX({onPress}) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.icon}>
         <IconButton
           name="close"
           size={35}
           iconSize={35}
           iconColor="#fff"
-          onPress={onPress}
-          // onPress={() => navigation.goBack()}
+          // onPress={onPress}
+          onPress={() => navigation.goBack()}
         />
-      </View>
     </View>
   );
 }
@@ -26,13 +24,10 @@ function AppCloseX({onPress}) {
 const styles = StyleSheet.create({
   container: {
     height: 40,
-    flexDirection: "row",
-    justifyContent: "flex-end",
+    position:'absolute',
+    top:70,
+    right:30,
     backgroundColor: colors.transparent,
-  },
-  icon: {
-    marginRight: 10,
-    marginTop: 10,
   },
 });
 
