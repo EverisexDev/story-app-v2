@@ -24,6 +24,7 @@ function Book(props) {
     showReviewIcon,
     index,
     chapterId,
+    read_range_end,
   } = props;
   const {
     main_menu_name,
@@ -67,7 +68,7 @@ function Book(props) {
     chapterId: chapterId ?? chapter?.id,
     storyData,
     nochapter,
-    read_range_end: chapter?.read_range_end
+    read_range_end: read_range_end ?? chapter?.read_range_end,
   };
 
   if (lang !== '繁體中文') return;
@@ -77,13 +78,6 @@ function Book(props) {
       <Pressable
         style={styles.container}
         onPress={() => {
-          // navigation.navigate(routes.CHAPTER, {
-          //   name: main_menu_name,
-          //   author,
-          //   storyId: id,
-          // });
-          // navigation.navigate(routes.STORY, {...storyPayload, ...storyStatus?.read});
-          // return;
           if (!isOpen) return;
 
           if (showIcon) {

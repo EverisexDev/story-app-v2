@@ -113,7 +113,12 @@ function StoryScreen({ route, navigation }) {
           }
         } else if (!_id && index.screen >= queryInfo.screenings.length) {
           if (storyData?.chapter_type === '章節') {
-            navigation.navigate(routes.CHAPTER);
+            navigation.navigate(routes.CHAPTER, {
+              name,
+              author,
+              storyId,
+              storyData,
+            });
           } else {
             storage.deleteStory({ storyId }, 'continueStory');
             storage.storeStory(
@@ -232,7 +237,7 @@ function StoryScreen({ route, navigation }) {
       story: cachedIndex?.story ?? initStoryIdx,
       screen: cachedIndex?.screen ?? 0,
     });
-  }, []);
+  }, [read_range_end]);
   return (
     <ImageBackground
       fadeDuration={2000}
@@ -253,7 +258,7 @@ function StoryScreen({ route, navigation }) {
           config={queryInfo?.config}
         />
         <Pressable
-          onPress={_.debounce(() => onPressOption(null), 100)}
+          onPress={_.debounce(() => onPressOption(null), 300)}
           style={{
             flex: 1,
           }}
