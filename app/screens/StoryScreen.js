@@ -141,6 +141,13 @@ function StoryScreen({ route, navigation }) {
       if (initRef.current) {
         setStory(queryInfo?.content?.slice(0, index.story + 1));
         initRef.current = false;
+        setTimeout(() => {
+          flatlistRef.current?.scrollToItem({
+            item: queryInfo?.content?.[index.story] ?? {},
+            animated: true,
+            viewPosition: 0,
+          });
+        }, 100);
       } else {
         setStory((prev) => [...prev, queryInfo?.content?.[index.story]]);
         storage.storeStory(
@@ -215,7 +222,6 @@ function StoryScreen({ route, navigation }) {
           imageUrl: domain + screenData?.bg_view,
           roleConf: roleConf?.data?.[0],
         });
-        // }
       } catch (error) {
         console.error('API 請求失敗：', error);
       }
