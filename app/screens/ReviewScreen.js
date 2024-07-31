@@ -1,51 +1,51 @@
-import React, { useState, useEffect } from "react";
-import { View, FlatList, StyleSheet } from "react-native";
-import { useIsFocused } from "@react-navigation/native";
+import React, { useState, useEffect } from 'react';
+import { View, FlatList, StyleSheet } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 
-import AppHeader from "../components/AppHeader";
-import AppText from "../components/AppText";
+import AppHeader from '../components/AppHeader';
+import AppText from '../components/AppText';
 
-import Screen from "./Screen";
+import Screen from './Screen';
 
-import Content from "./Content";
-import colors from "../config/colors";
-import storage from "../storage/storage";
-import Book from "../components/Book/Book";
+import Content from './Content';
+import colors from '../config/colors';
+import storage from '../storage/storage';
+import Book from '../components/Book/Book';
+import { isEmpty } from 'lodash';
 
 function ReviewScreen() {
-  const [finishStorys, setFinishStorys] = useState();
-  const isFocused = useIsFocused();
+  const [storyCache, setStoryCache] = useState(null);
+  const isFocus = useIsFocused();
 
   useEffect(() => {
-    async function getStorys() {
-      let storys = await storage.getStorys("finishStory");
-      setFinishStorys(storys);
+    async function getStories() {
+      const finishStory = await storage.getStorys('finishStory');
+      setStoryCache(finishStory);
     }
-    getStorys();
-  }, [isFocused]);
+    getStories();
+  }, [isFocus]);
 
   return (
     <Screen>
       <AppHeader />
       <Content>
         <View style={styles.books}>
-          {!finishStorys && (
+          {!storyCache || isEmpty(storyCache) ? (
             <AppText style={styles.noBooks}>尚未看完任何書籍</AppText>
+          ) : (
+            <FlatList
+              data={storyCache ?? []}
+              keyExtractor={(item) => item?.id?.toString()}
+              numColumns={2}
+              renderItem={({ item }) => (
+                <Book
+                  storyData={item?.storyData}
+                  nochapter={item?.nochapter}
+                  showReviewIcon={true}
+                />
+              )}
+            />
           )}
-          <FlatList
-            data={finishStorys}
-            keyExtractor={(item) => item.id.toString()}
-            numColumns={2}
-            renderItem={({ item }) => (
-              <Book
-                name={item.name}
-                author={item.author}
-                cover={item.cover}
-                story={item.story}
-                cont={false}
-              />
-            )}
-          />
         </View>
       </Content>
     </Screen>
@@ -54,12 +54,12 @@ function ReviewScreen() {
 
 const styles = StyleSheet.create({
   books: {
-    alignItems: "flex-start",
+    alignItems: 'flex-start',
   },
   noBooks: {
     color: colors.leftChatBackground,
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
 });
 

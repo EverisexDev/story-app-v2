@@ -1,72 +1,65 @@
-import React, { useState, useEffect } from "react";
-import { View, StyleSheet, FlatList } from "react-native";
-import colors from "../../config/colors";
-import AppText from "../AppText";
-import Book from "./Book";
-import axios from 'axios';
+import React, { useMemo } from 'react';
+import { View, StyleSheet, FlatList, Platform } from 'react-native';
+import colors from '../../config/colors';
+import AppText from '../AppText';
+import Book from './Book';
 
-function Books({ books }) {
-  const [storyType, setStoryType] = useState(''); 
+function Books({ type, config, storyList, storyCache, nochapter }) {
+  const {
+    story_type_size = 20,
+    story_type_color = '#fff',
+    story_type_weight = '',
+  } = config;
   
-useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const response = await axios.get('http://api.xstudio-mclub.url.tw/api/v1/admin/story-list');
-      if (response.data && Array.isArray(response.data)) {
-        const storyTypes = response.data[0];
-        setStoryType(storyTypes);
-      } else {
-        throw new Error('API 請求成功，但未返回預期的數據');
-      }
-    } catch (error) {
-      console.error('API 請求失敗：', error);
-    }
-  };
+  const renderItem = ({ item,index }) => <Book storyData={item} storyCache={storyCache} nochapter={nochapter} index={index}/>;
 
-  fetchData();
-}, []);
+  const listData = useMemo(
+    () => storyList.filter((e) => e?.story_type === type?.story_type),
+    [storyList]
+  );
 
+  if (!listData?.length || type?.lang !== '繁體中文') return;
   
   return (
     <View style={styles.container}>
-      {/* 故事類別 */}
-      {/* Note:http://api.xstudio-mclub.url.tw/admin/story-type 中的 story_type*/}
-    <AppText style={styles.type}>{storyType.story_type}</AppText>
-
-
-    <FlatList
-    data={books.storys}
-    keyExtractor={(item) => item.id.toString()}
-    horizontal={true}
-    renderItem={({ item }) => (
-      <Book
-      // 故事名稱
-      name={item.name}
-      // 故事作者
-      author={item.author}
-      // 故事封面
-      cover={item.cover}
-      // 故事內容
-      story={item.story}
-      />
+      {!storyList?.length ? null : (
+        <>
+          <AppText
+            style={{
+              fontSize: story_type_size ?? 20,
+              color: story_type_color ?? colors.leftChatBackground,
+              ...(story_type_weight === '粗' && {
+                fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
+              }),
+            }}
+          >
+            {type?.story_type}
+          </AppText>
+          <FlatList
+            data={listData}
+            keyExtractor={(item) => item?.id?.toString()}
+            horizontal={true}
+            renderItem={renderItem}
+            showsHorizontalScrollIndicator={false}
+          />
+        </>
       )}
-      />
-      </View>
-      );
-    }
-    
-    const styles = StyleSheet.create({
-      container: {
-        marginBottom: 15,
-      },
-      type: {
-        fontSize: 21,
-        fontWeight: "bold",
-        color: colors.leftChatBackground,
-      },
-      name: {
-        fontSize: 21,
-      },
-    });
-    
-    export default Books;
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    marginBottom: 15,
+  },
+  type: {
+    fontSize: 21,
+    fontWeight: 'bold',
+    color: colors.leftChatBackground,
+  },
+  name: {
+    fontSize: 21,
+  },
+});
+
+export default Books;

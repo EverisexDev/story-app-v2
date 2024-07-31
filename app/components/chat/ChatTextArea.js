@@ -1,12 +1,11 @@
-import React, { useContext } from "react";
-import { View, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import React, { useContext } from 'react';
+import { View, StyleSheet, Pressable } from 'react-native';
 
-import AppText from "../AppText";
-import defaultStyle from "../../config/styles";
-import StoryContext from "../story/context";
+import AppText from '../AppText';
+import defaultStyle from '../../config/styles';
+import StoryContext from '../story/context';
 
-function ChatTextArea({ textMsg, backgroundColor }) {
-  const { currentChatIdx, setCurrentChatIdx } = useContext(StoryContext);
+function ChatTextArea({ textMsg, backgroundColor, textStyle }) {
   const notChinese = /[0-9a-z]/i;
   let points = 0;
 
@@ -14,9 +13,9 @@ function ChatTextArea({ textMsg, backgroundColor }) {
     // 如果這個字元他不是中文 或 是空格 或 是點 或 是逗號，分數+0.5
     if (
       notChinese.test(textMsg[idx]) ||
-      textMsg[idx] === " " ||
-      textMsg[idx] === "." ||
-      textMsg[idx] === ","
+      textMsg[idx] === ' ' ||
+      textMsg[idx] === '.' ||
+      textMsg[idx] === ','
     ) {
       points += 1;
     } else {
@@ -29,34 +28,32 @@ function ChatTextArea({ textMsg, backgroundColor }) {
     }
   }
   return (
-    <TouchableWithoutFeedback
-      onPress={() => {
-        setCurrentChatIdx(currentChatIdx + 1);
-      }}
+    <View
+      style={[
+        styles.container,
+        {
+          width: points >= 26 ? 220 : undefined,
+        },
+        backgroundColor,
+      ]}
     >
-      <View
-        style={[
-          styles.container,
-          backgroundColor,
-          { width: points >= 26 ? 220 : undefined },
-        ]}
-      >
-        <AppText style={[defaultStyle.text, styles.text]}>{textMsg}</AppText>
-      </View>
-    </TouchableWithoutFeedback>
+      <AppText style={[defaultStyle.text, styles.text, textStyle]}>
+        {textMsg}
+      </AppText>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    alignSelf: "flex-start",
+    alignSelf: 'flex-start',
     padding: 10,
     borderRadius: 15,
   },
   text: {
-    fontWeight: "400",
+    fontWeight: '400',
     fontSize: 15,
   },
 });
 
-export default ChatTextArea;
+export default React.memo(ChatTextArea);

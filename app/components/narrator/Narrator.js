@@ -1,81 +1,86 @@
-import React, { useContext } from "react";
-import { View, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import React, { useMemo, useRef } from 'react';
+import { View, StyleSheet, Image, Pressable } from 'react-native';
 
-import colors from "../../config/colors";
+import colors from '../../config/colors';
+import AppText from '../AppText';
+import NarratorSound from './NarratorSound';
+import NarratorVideo from './NarratorVideo';
+import NarratorOption from './NarratorOption';
+import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
+import useStore from '../../store/story';
 
-import NarratorText from "./NarratorText";
-import NarratorSound from "./NarratorSound";
-import NarratorImage from "./NarratorImage";
-import NarratorVideo from "./NarratorVideo";
-
-import StoryContext from "../story/context";
-
-function Narrator({
-  textMsg,
-  imgMsg,
-  soundMsg,
-  soundImg,
-  videoMsg,
-  videoDirection,
-  backStyle,
-  fontStyle,
-}) {
-  const { currentChatIdx, setCurrentChatIdx } = useContext(StoryContext);
-
+function Narrator(props) {
+  const {
+    textMsg,
+    imgMsg,
+    soundMsg,
+    videoMsg,
+    videoDirection,
+    choice1Content = '',
+    onPressOption,
+    textContentColor,
+    textContentWeight,
+    textContentSize,
+    textContentBaseColor,
+    choseRef,
+  } = props;
+  const imgSize = useStore((state) => state.imgSize);
+  const imgUrl = useMemo(
+    () => 'http://api.xstudio-mclub.url.tw/images/update/' + imgMsg,
+    [imgMsg]
+  );
   return (
-    <TouchableWithoutFeedback
-      onPress={() => {
-        if (!videoMsg) {
-          setCurrentChatIdx(currentChatIdx + 1);
-        }
-      }}
-    >
-      <View style={styles.container}>
-        <View style={[styles.contentContainer, backStyle]}>
-          {textMsg && (
-            <NarratorText
-              textMsg={textMsg}
-              fontStyle={fontStyle}
-              // chatIdx={chatIdx}
-              // setChatIdx={setChatIdx}
-            />
-          )}
-          {imgMsg && (
-            <NarratorImage
-              imgMsg={imgMsg}
-              // chatIdx={chatIdx}
-              // setChatIdx={setChatIdx}
-            />
-          )}
-          {soundMsg && (
-            <NarratorSound soundMsg={soundMsg} soundImg={soundImg} />
-          )}
-          {videoMsg && (
-            <NarratorVideo
-              videoMsg={videoMsg}
-              videoDirection={videoDirection}
-            />
-          )}
+    <Pressable style={[styles.contentContainer]} onPress={()=>onPressOption(null)}>
+      {textMsg ? (
+        <View
+          style={{
+            backgroundColor: textContentBaseColor ?? 'transparent',
+            borderRadius: 20,
+            padding: 10,
+          }}
+        >
+          <AppText
+            style={{
+              textAlign: 'center',
+              fontSize: textContentSize || 20,
+              color: textContentColor || '#fff',
+              ...(textContentWeight === '粗' && {
+                fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
+              }),
+            }}
+          >
+            {textMsg}
+          </AppText>
         </View>
-      </View>
-    </TouchableWithoutFeedback>
+      ) : null}
+      {imgMsg ? (
+        <Image
+          style={{ width: wp('100%'), height: 200 }}
+          source={{ uri: imgUrl }}
+        />
+      ) : null}
+      {soundMsg ? <NarratorSound soundMsg={soundMsg} /> : null}
+      {videoMsg ? (
+        <NarratorVideo videoMsg={videoMsg} videoDirection={videoDirection} />
+      ) : null}
+      {choice1Content ? (
+        <NarratorOption
+          {...props}
+          onPressOption={onPressOption}
+          choseRef={choseRef}
+        />
+      ) : null}
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    // backgroundColor: colors.danger,
-    marginVertical: 3,
-  },
   contentContainer: {
-    alignSelf: "center",
-    padding: 5,
-    // marginTop: 5,
-    // marginBottom: 5,
-    paddingHorizontal: 15,
-    backgroundColor: colors.transparents,
-    borderRadius: 30,
+    alignSelf: 'center',
+    backgroundColor: colors.transparent,
+    marginVertical: 3,
+    flex: 1,
   },
 });
 
-export default Narrator;
+export default React.memo(Narrator);

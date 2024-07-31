@@ -1,141 +1,202 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useMemo } from 'react';
 import {
   View,
   StyleSheet,
-  TouchableOpacity,
+  Pressable,
   Image,
   Dimensions,
   Alert,
-} from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { Asset } from "expo-asset";
+  Platform,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import routes from '../../navigations/routes';
+import AppText from '../AppText';
+import colors from '../../config/colors';
 
-import StoryContext from "../story/context";
-import routes from "../../navigations/routes";
-import AppText from "../AppText";
-import colors from "../../config/colors";
+const screenWidth = Dimensions.get('window').width;
 
-function Book({
-  name,
-  author,
-  cover,
-  story,
-  cont = null,
-  backSN = 0,
-  chatSN = -1,
-}) {
+function Book(props) {
+  const {
+    storyData = {},
+    storyCache,
+    nochapter,
+    showIcon = false,
+    showReviewIcon,
+    index,
+    chapterId,
+    read_range_end,
+  } = props;
+  const {
+    main_menu_name,
+    main_menu_name_size = '',
+    main_menu_name_color = '',
+    main_menu_image = '',
+    main_menu_name_weight = '',
+    main_menu_btn_left,
+    main_menu_btn_right,
+    main_menu_content = '',
+    main_menu_title = '',
+    open = '',
+    chapter_type = '',
+    author = '',
+    id,
+    lang,
+  } = storyData;
   const navigation = useNavigation();
-  const [ready, setReady] = useState(false);
-  const [image, setImage] = useState(Asset.fromModule(cover));
-  const { setCurrentStory, setCurrentBackIdx, setCurrentChatIdx } =
-    useContext(StoryContext);
-
-  const screenWidth = Dimensions.get("window").width;
+  const imageUri =
+    'http://api.xstudio-mclub.url.tw/images/update/' + main_menu_image;
+  const hasChapter = chapter_type === '章節';
+  const isOpen = open === '公開';
 
   const padImgStyle = screenWidth > 500 ? { width: 225, height: 330 } : {};
 
-  useEffect(() => {
-    // screenWidth > 500 ? resizeImage() : setReady(true);
-    resizeImage();
-  }, []);
+  const chapter = useMemo(() => {
+    return nochapter?.find((e) => e.storyid === id);
+  }, [nochapter]);
 
-  const resizeImage = () => {
-    let resizeRate =
-      screenWidth > 500 ? (screenWidth * 0.6) / image.width : 256 / image.width;
-    const newImage = {
-      ...image,
-      width: screenWidth > 500 ? screenWidth * 0.6 : 256,
-      height: image.height * resizeRate,
-    };
-    setImage(newImage);
-    setReady(true);
+  const storyStatus = useMemo(() => {
+    const read = storyCache?.continueStory?.find((e) => +e.storyId === +id);
+    const finish = storyCache?.finishStory?.find((e) => +e.storyId === +id);
+    const isNew = !(read || finish);
+    return { read, finish, isNew };
+  }, [storyCache]);
+
+  const storyPayload = {
+    name: main_menu_name,
+    author,
+    storyId: id,
+    chapterId: chapterId ?? chapter?.id,
+    storyData,
+    nochapter,
+    read_range_end: read_range_end ?? chapter?.read_range_end,
   };
 
-  const goToStory = () => {
-    // 如果有故事內容，才要跳轉頁面
-    if (story) {
-      setCurrentStory(story);
-      setCurrentBackIdx(backSN);
-      setCurrentChatIdx(chatSN);
-      navigation.navigate(routes.STORY, {
-        name: name,
-        author: author,
-        cover: cover,
-      });
-    }
-  };
-
-  // Object {
-  //   "default": Array [
-  //     Object {
-  //       "backImg": 20,
-  //       "backSN": 1,
-  //       "chats": Array [
+  if (lang !== '繁體中文') return;
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity
+    <View style={[styles.container]}>
+      <Pressable
+        style={styles.container}
         onPress={() => {
-          // 如果是主畫面
-          if (cont === null) {
-            // 如果這本故事有繼續觀看
-            if (story) {
-              Alert.alert(
-                "故事將從頭開始",
-                "請選擇前往繼續觀看頁面，或從頭開始閱讀",
-                [
-                  {
-                    text: "從頭開始",
-                    onPress: () => goToStory(),
-                  },
-                  {
-                    text: "繼續觀看",
-                    onPress: () => navigation.navigate(routes.CONTINUE),
-                  },
-                ],
-                {
-                  cancelable: true,
-                }
-              );
-            }
+          if (!isOpen) return;
+
+          if (showIcon) {
+            navigation.navigate(routes.STORY, {
+              ...props,
+              ...storyPayload,
+            });
+          } else if (showReviewIcon) {
+            hasChapter
+              ? navigation.navigate(routes.CHAPTER, {
+                  name: main_menu_name,
+                  author,
+                  storyId: id,
+                  storyData,
+                })
+              : navigation.navigate(routes.STORY, storyPayload);
           } else {
-            // 如果不是主畫面就直接進去故事
-            goToStory();
+            Alert.alert(
+              main_menu_title,
+              main_menu_content,
+              [
+                {
+                  text: main_menu_btn_left,
+                  onPress: () => {
+                    hasChapter
+                      ? navigation.navigate(routes.CHAPTER, {
+                          name: main_menu_name,
+                          author,
+                          storyId: id,
+                          storyData,
+                        })
+                      : navigation.navigate(routes.STORY, storyPayload);
+                  },
+                },
+                {
+                  text: main_menu_btn_right,
+                  onPress: () => {
+                    navigation.navigate(routes.CONTINUE);
+                  },
+                },
+              ],
+              {
+                cancelable: true,
+              }
+            );
           }
         }}
       >
-        {ready && (
-          <>
-            {cont === true ? (
-              // 繼續觀看
-              <View>
+        {showIcon ? (
+          // 繼續觀看
+          <View>
+            <Image
+              style={styles.coverIcon}
+              source={require('../../../assets/continue.png')}
+            />
+            <Image
+              style={[styles.img, padImgStyle]}
+              source={{
+                uri: imageUri,
+              }}
+            />
+          </View>
+        ) : showReviewIcon ? (
+          // 重新回味
+          <View>
+            <Image
+              style={styles.coverIcon}
+              source={require('../../../assets/reload.png')}
+            />
+            <Image
+              style={[styles.img, padImgStyle]}
+              source={{ uri: imageUri }}
+            />
+          </View>
+        ) : (
+          // 一般畫面
+          <View>
+            {!isOpen ? (
+              <View style={styles.lock}>
                 <Image
-                  style={styles.coverIcon}
-                  source={require("../../../assets/continue.png")}
+                  style={styles.lockIcon}
+                  source={require('../../../assets/lock.png')}
                 />
-                <Image style={[styles.img, padImgStyle]} source={image} />
               </View>
-            ) : cont === false ? (
-              // 重新回味
-              <View>
-                <Image
-                  style={styles.coverIcon}
-                  source={require("../../../assets/reload.png")}
-                />
-                <Image style={[styles.img, padImgStyle]} source={image} />
-              </View>
-            ) : (
-              // 一般畫面
-              <View>
-                <Image style={[styles.img, padImgStyle]} source={image} />
-              </View>
-            )}
-            <View style={styles.nameContainer}>
-              <AppText style={styles.name}>{name}</AppText>
-            </View>
-          </>
+            ) : null}
+
+            <Image
+              style={[styles.img, padImgStyle]}
+              source={{ uri: imageUri }}
+            />
+            {index === 0 && storyStatus?.isNew ? (
+              <Image
+                style={[
+                  styles.newIcon,
+                  { position: 'absolute', top: -15, right: -10 },
+                ]}
+                source={require('../../../assets/new.png')}
+              />
+            ) : null}
+          </View>
         )}
-      </TouchableOpacity>
+        <View style={styles.nameContainer}>
+          <AppText
+            numberOfLines={1}
+            style={[
+              styles.name,
+              {
+                fontSize: main_menu_name_size || 15,
+                color: main_menu_name_color || '#fff',
+                ...(main_menu_name_weight === '粗' && {
+                  fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
+                }),
+              },
+            ]}
+          >
+            {main_menu_name}
+          </AppText>
+        </View>
+      </Pressable>
     </View>
   );
 }
@@ -147,22 +208,41 @@ const styles = StyleSheet.create({
   },
   nameContainer: {
     marginTop: 5,
-    alignItems: "center",
+    alignItems: 'center',
   },
   name: {
     fontSize: 20,
     color: colors.leftChatBackground,
+    width: 150,
+    textAlign: 'center',
   },
   img: {
     width: 150,
     height: 220,
   },
   coverIcon: {
-    position: "absolute",
+    position: 'absolute',
     zIndex: 1,
     marginLeft: 55,
     marginTop: 95,
-    // color: colors.light,
+    width: 35,
+    height: 35,
+  },
+  lockIcon: {
+    width: 40,
+    height: 40,
+  },
+  newIcon: {
+    width: 30,
+    height: 30,
+  },
+  lock: {
+    position: 'absolute',
+    zIndex: 1,
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

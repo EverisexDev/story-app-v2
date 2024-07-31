@@ -38,7 +38,7 @@ export default function AppNavigator() {
             width: 180,
           },
           drawerLabelStyle: {
-            fontSize: 18,
+            fontSize: 20,
             fontWeight: "bold",
             color: colors.white,
           },

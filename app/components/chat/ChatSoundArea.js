@@ -1,64 +1,56 @@
-import React, { useEffect } from "react";
-import { View, StyleSheet, TouchableOpacity, Image } from "react-native";
-import { Audio } from "expo-av";
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, StyleSheet, Pressable, Image } from 'react-native';
+import { Audio } from 'expo-av';
 
 function ChatSoundArea({ soundMsg, backgroundColor }) {
-  const [sound, setSound] = React.useState();
+  const [sound, setSound] = useState();
 
-  async function playSound() {
-    console.log("Loading Sound");
-    const { sound } = await Audio.Sound.createAsync(soundMsg);
-    setSound(sound);
-
-    console.log("Playing Sound");
-    await sound.playAsync();
-  }
+  const playSound = useCallback(async () => {
+    const soundUrl =
+      'http://api.xstudio-mclub.url.tw/images/update/' + soundMsg;
+    await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+    const { _sound } = await Audio.Sound.createAsync(
+      { uri: soundUrl },
+      { shouldPlay: true }
+    );
+    setSound(_sound);
+  }, [soundMsg]);
 
   useEffect(() => {
-    // return sound
-    //   ? () => {
-    //       console.log("Unloading Sound");
-    //       sound.unloadAsync();
-    //     }
-    //   : undefined;
     return () => {
       setTimeout(() => {
         try {
-          console.log("Unloading Sound");
-          sound.unloadAsync();
+          // console.log('Unloading Sound');
+          sound?.unloadAsync();
         } catch {}
       }, 40000);
     };
-  }, [sound]);
+  }, []);
 
   return (
-    <TouchableOpacity
-      onPress={() => {
-        playSound();
-      }}
-    >
+    <Pressable onPress={playSound} style={{ flex: 1 }}>
       <View style={[styles.container, backgroundColor]}>
         <Image
           style={styles.img}
-          source={require("../../../assets/play.png")}
+          source={require('../../../assets/play.png')}
         />
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    alignSelf: "flex-start",
+    alignSelf: 'flex-start',
     padding: 10,
     borderRadius: 15,
   },
   text: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   img: {
     width: 130,
   },
 });
 
-export default ChatSoundArea;
+export default React.memo(ChatSoundArea);

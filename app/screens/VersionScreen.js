@@ -1,17 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, useWindowDimensions } from 'react-native';
-import { useIsFocused } from '@react-navigation/native';
-import axios from 'axios';
 import RenderHtml from 'react-native-render-html';
 
 import AppHeader from '../components/AppHeader';
-import colors from '../config/colors';
-import storage from '../storage/storage';
 import Content from './Content';
 import Screen from './Screen';
 
 function VersionScreen() {
-  const isFocused = useIsFocused();
   const [quote, setQuote] = useState('');
   const { width } = useWindowDimensions();
 

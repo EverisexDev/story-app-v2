@@ -1,126 +1,160 @@
-import React, { useContext } from "react";
-import { View, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import React, { useState, useMemo, useEffect } from 'react';
+import { View, StyleSheet, Dimensions, Image, Pressable } from 'react-native';
 
-import colors from "../../config/colors";
-import StoryContext from "../story/context";
-import ChatImageArea from "./ChatImageArea";
-import ChatSoundArea from "./ChatSoundArea";
+import colors from '../../config/colors';
+import ChatImageArea from './ChatImageArea';
+import ChatSoundArea from './ChatSoundArea';
 
-import ChatTextArea from "./ChatTextArea";
-import ChatVideoArea from "./ChatVideoArea";
-import PersonalPhoto from "./PersonalPhoto";
+import ChatTextArea from './ChatTextArea';
+import ChatVideoArea from './ChatVideoArea';
+import PersonalPhoto from './PersonalPhoto';
+import useStore from '../../store/story';
+
+const domain = 'http://api.xstudio-mclub.url.tw/images/update/';
+const screenWidth = Dimensions.get('window').width;
 
 function Chat({
-  photo,
-  name,
+  textContentColor,
+  textContentWeight,
+  textContentSize,
+  textContentBaseColor,
   textMsg,
   soundMsg,
   imgMsg,
   videoMsg,
-  direction,
-  leftBackColor,
+  role,
+  roleName,
+  roleList,
+  roleConf,
+  onPressOption,
 }) {
-  const { currentStory, currentBackIdx, currentChatIdx, setCurrentChatIdx } =
-    useContext(StoryContext);
+  const roleData = useMemo(() => {
+    return roleList?.find((e) => e?.role_name?.trim() === roleName?.trim());
+  }, [role, roleList]);
 
-  const LeftOrRight = () => {
-    if (direction === "L") {
-      return (
-        <View style={styles.chatLeft}>
-          <PersonalPhoto
-            photo={photo}
-            name={name}
-            nameColor={currentStory.default[currentBackIdx].nameColorL}
-          />
-          {textMsg && (
-            <ChatTextArea
-              textMsg={textMsg}
-              backgroundColor={
-                leftBackColor
-                  ? { backgroundColor: leftBackColor }
-                  : styles.leftBackground
-              }
-              // chatIdx={chatIdx}
-              // setChatIdx={setChatIdx}
-            />
-          )}
-          {soundMsg && (
-            <ChatSoundArea
-              soundMsg={soundMsg}
-              backgroundColor={
-                leftBackColor
-                  ? { backgroundColor: leftBackColor }
-                  : styles.leftBackground
-              }
-            />
-          )}
-          {imgMsg && (
-            <ChatImageArea
-              imgMsg={imgMsg}
-              backgroundColor={styles.imgBackground}
-            />
-          )}
-          {videoMsg && <ChatVideoArea videoMsg={videoMsg} />}
-        </View>
-      );
-    } else {
-      return (
-        <View style={styles.chatRight}>
-          {textMsg && (
-            <ChatTextArea
-              textMsg={textMsg}
-              backgroundColor={styles.rightBackground}
-              // chatIdx={chatIdx}
-              // setChatIdx={setChatIdx}
-            />
-          )}
-          {soundMsg && (
-            <ChatSoundArea
-              soundMsg={soundMsg}
-              backgroundColor={styles.rightBackground}
-            />
-          )}
-          {imgMsg && (
-            <ChatImageArea
-              imgMsg={imgMsg}
-              backgroundColor={styles.imgBackground}
-            />
-          )}
-          {videoMsg && <ChatVideoArea videoMsg={videoMsg} />}
-          <PersonalPhoto
-            photo={photo}
-            name={name}
-            nameColor={currentStory.default[currentBackIdx].nameColorR}
-          />
-        </View>
-      );
-    }
-  };
+  const imgSize = useStore((state) => state.imgSize);
+  const setImgSize = useStore((state) => state.setImgSize);
+
+  useEffect(() => {
+    if (!imgMsg) return;
+    if (imgSize) setImgSize(null);
+    const imageUrl = domain + imgMsg;
+    Image.getSize(imageUrl, (width, height) => {
+      let resizeRate =
+        screenWidth > 500 ? (screenWidth * 0.6) / width : 256 / width;
+      const newImage = {
+        width: screenWidth > 500 ? screenWidth * 0.6 : 256,
+        height: height * resizeRate,
+      };
+      setImgSize(newImage);
+    });
+  }, [imgMsg]);
+
+
   return (
-    <TouchableWithoutFeedback
-      onPress={() => {
-        if (!videoMsg) {
-          setCurrentChatIdx(currentChatIdx + 1);
-        }
-      }}
-    >
-      {LeftOrRight()}
-    </TouchableWithoutFeedback>
+    <Pressable onPress={() => onPressOption(null)}>
+      {role !== '主角' ? (
+        <View style={[styles.chatLeft]}>
+          <PersonalPhoto
+            photo={roleData?.role_pic}
+            name={roleData?.role_name}
+            {...roleData}
+            roleConf={roleConf}
+            role={role}
+          />
+          {textMsg ? (
+            <ChatTextArea
+              textMsg={textMsg}
+              backgroundColor={{
+                backgroundColor:
+                  roleData?.role_sex !== '女'
+                    ? roleConf?.boy_Supporting_Color
+                    : roleConf?.girl_Supporting_Color,
+              }}
+              textStyle={{
+                fontSize: textContentSize || 20,
+                color: textContentColor || '#fff',
+                ...(textContentWeight === '粗' && {
+                  fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
+                }),
+              }}
+            />
+          ) : null}
+          {soundMsg ? (
+            <ChatSoundArea
+              soundMsg={soundMsg}
+              backgroundColor={
+                textContentBaseColor
+                  ? { backgroundColor: textContentBaseColor }
+                  : styles.leftBackground
+              }
+            />
+          ) : null}
+          {imgMsg ? (
+            <ChatImageArea
+              imgMsg={imgMsg}
+              backgroundColor={styles.imgBackground}
+              imgSize={imgSize}
+            />
+          ) : null}
+          {videoMsg ? <ChatVideoArea videoMsg={videoMsg} /> : null}
+        </View>
+      ) : (
+        <View style={[styles.chatRight]}>
+          {textMsg ? (
+            <ChatTextArea
+              textMsg={textMsg}
+              backgroundColor={
+                roleConf?.main_Role_Name_Color
+                  ? { backgroundColor: roleConf?.main_Role_Name_Color }
+                  : styles.rightBackground
+              }
+              textStyle={{
+                fontSize: textContentSize || 20,
+                color: textContentColor || '#fff',
+                ...(textContentWeight === '粗' && {
+                  fontWeight: Platform.OS === 'ios' ? 600 : 'bold',
+                }),
+              }}
+            />
+          ) : null}
+          {soundMsg ? (
+            <ChatSoundArea
+              soundMsg={soundMsg}
+              backgroundColor={styles.rightBackground}
+            />
+          ) : null}
+          {imgMsg ? (
+            <ChatImageArea
+              imgMsg={imgMsg}
+              backgroundColor={styles.imgBackground}
+              // size={size}
+            />
+          ) : null}
+          {videoMsg ? <ChatVideoArea videoMsg={videoMsg} /> : null}
+          <PersonalPhoto
+            photo={roleData?.role_pic}
+            name={roleData?.role_name}
+            {...roleData}
+            roleConf={roleConf}
+            role={role}
+          />
+        </View>
+      )}
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   chatLeft: {
-    flexDirection: "row",
+    flexDirection: 'row',
     paddingVertical: 5,
-    // backgroundColor: colors.danger,
   },
   chatRight: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "flex-start",
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'flex-start',
     paddingVertical: 5,
-    // backgroundColor: colors.danger,
   },
   leftBackground: {
     backgroundColor: colors.leftChatBackground,
@@ -133,4 +167,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Chat;
+export default React.memo(Chat);

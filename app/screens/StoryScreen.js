@@ -1,160 +1,328 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
-import { StyleSheet, FlatList } from "react-native";
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import {
+  StyleSheet,
+  FlatList,
+  Pressable,
+  ImageBackground,
+  Platform,
+  SafeAreaView,
+} from 'react-native';
+import axios from 'axios';
+import colors from '../config/colors';
+import routes from '../navigations/routes';
+import Narrator from '../components/narrator/Narrator';
+import StoryHeader from '../components/StoryHeader';
+import Chat from '../components/chat/Chat';
+import storage from '../storage/storage';
+import { useRoute } from '@react-navigation/native';
+import _ from 'lodash';
+import useStore from '../store/story';
+import { useIsFocused } from '@react-navigation/native';
 
-import Narrator from "../components/narrator/Narrator";
-import StoryHeader from "../components/StoryHeader";
-import ImageBackScreen from "./ImageBackScreen";
-import Chat from "../components/chat/Chat";
-
-import StoryContext from "../components/story/context";
-import storage from "../storage/storage";
+const domain = 'http://api.xstudio-mclub.url.tw/images/update/';
+const initStoryIdx = null;
 
 function StoryScreen({ route, navigation }) {
-  const storyDetail = route.params;
+  const router = useRoute();
+  const isFocus = useIsFocused();
   const {
-    currentStory,
-    currentChatIdx,
-    currentBackIdx,
-    setCurrentBackIdx,
-    setCurrentChatIdx,
-  } = useContext(StoryContext);
-
-  const [storyChatArr, setStoryChatArr] = useState([]);
-  const [maxY, setMaxY] = useState(0);
-  const [cuttentY, setCuttentY] = useState(0);
-
+    storyId = 1,
+    chapterId,
+    author = '',
+    name = '',
+    storyData,
+    nochapter = [],
+    cachedIndex = null,
+    read_range_end,
+  } = router.params;
+  const [index, setIndex] = useState({
+    story: initStoryIdx,
+    screen: 0,
+  });
+  const [story, setStory] = useState([]);
+  const [queryInfo, setQueryInfo] = useState({
+    config: [],
+    screenings: {},
+    content: null,
+    role: {},
+    imageUrl: '',
+  });
   const flatlistRef = useRef(null);
+  const choseRef = useRef(false);
+  const initRef = useRef(false);
+  const cacheData = useMemo(
+    () => ({
+      storyId,
+      chapterId,
+      storyData,
+      read_range_end,
+      nochapter,
+      cachedIndex: {
+        story: index.story,
+        screen: index.screen,
+      },
+    }),
+    [queryInfo.screenings, index, router.params]
+  );
 
-  useEffect(() => {
-    if (!currentStory.default[currentBackIdx]) {
-      let obj = {
-        ...storyDetail,
-        backSN: currentBackIdx,
-        chatSN: currentChatIdx,
-        story: currentStory,
-      };
-      // 故事結束，儲存到再次回味畫面
-      storage.storeStory(obj, "finishStory");
-
-      //故事結束，刪除繼續觀賞畫面
-      storage.deleteStory(obj, "continueStory");
-      navigation.goBack();
-    }
-  }, [currentBackIdx]);
-
-  useEffect(() => {
-    // console.log(currentBackIdx, currentChatIdx);
-
-    // 如果背景存在，代表故事尚未結束
-    if (currentStory.default[currentBackIdx]) {
-      let chats = currentStory.default[currentBackIdx].chats;
-      console.log("現在背景", currentBackIdx);
-      console.log("現在對話", currentChatIdx);
-      console.log("現在對話長度", chats.length);
-
-      // 如果 chats[idx]存在，代表還有對話，且，idx < chats.length，代表故事還沒走完
-      // 就要 setStoryChatArr
-      if (chats[currentChatIdx] && currentChatIdx <= chats.length) {
-        // 篩選出這個背景的對話中，所有在currentChatIdx之前的對話
-        let chatsBeforeCurrentChatIdx = chats.filter(
-          (c) => c.chatSN <= currentChatIdx + 1
-        );
-        setStoryChatArr(chatsBeforeCurrentChatIdx);
+  const onPressOption = (idx) => {
+    if (idx) {
+      if (choseRef.current) {
+        return;
       } else {
-        // console.log("current", cuttentY, "max", maxY);
-        if (currentChatIdx >= chats.length && cuttentY >= maxY) {
-          console.log("下一頁");
-          setStoryChatArr([]);
-          setCurrentChatIdx(-1);
-          setCurrentBackIdx(currentBackIdx + 1);
-          setMaxY(0);
-          setCuttentY(0);
-        }
-        console.log("場景結束");
+        let id = 0;
+        queryInfo.content?.find((e, i) => {
+          if (+e.order === +idx) {
+            id = i;
+          }
+        });
+        setIndex((prev) => ({
+          ...prev,
+          story: id,
+        }));
+        choseRef.current = true;
       }
-      // 把現在看的這個故事的狀況儲存起來
-      let obj = {
-        ...storyDetail,
-        backSN: currentBackIdx,
-        chatSN: currentChatIdx,
-        story: currentStory,
-      };
-      storage.storeStory(obj, "continueStory");
+    } else {
+      setIndex((prev) => ({
+        ...prev,
+        story: index.story === null ? 0 : index.story + 1,
+      }));
+    }
+  };
 
-      setTimeout(() => {
-        try {
-          flatlistRef.current.scrollToEnd({
-            animating: true,
+  useEffect(() => {
+    // set next scene
+    const fetchStories = async () => {
+      try {
+        const _id = queryInfo.screenings?.[index.screen]?.id;
+        if (_id) {
+          const content = await axios.get(
+            `http://api.xstudio-mclub.url.tw/api/v1/admin/content/${storyId}/${chapterId}/${_id}`
+          );
+          if (content?.data?.length) {
+            const storyContent = content?.data
+              ?.slice()
+              .sort((a, b) => a?.order - b?.order);
+
+            setQueryInfo((prev) => ({
+              ...prev,
+              content: storyContent,
+              imageUrl: domain + queryInfo?.screenings?.[index.screen]?.bg_view,
+            }));
+            setStory([]);
+          }
+        } else if (!_id && index.screen >= queryInfo.screenings.length) {
+          if (storyData?.chapter_type === '章節') {
+            navigation.navigate(routes.CHAPTER, {
+              name,
+              author,
+              storyId,
+              storyData,
+            });
+          } else {
+            storage.deleteStory({ storyId }, 'continueStory');
+            storage.storeStory(
+              { storyId, storyData, nochapter },
+              'finishStory'
+            );
+            navigation.navigate(routes.MAIN);
+          }
+        }
+      } catch (error) {
+        console.error('API 請求失敗：', error);
+      }
+    };
+    if (queryInfo.screenings) fetchStories();
+  }, [index.screen, queryInfo.screenings]);
+
+  useEffect(() => {
+    if (!queryInfo?.content || index?.story === null) return;
+    if (queryInfo?.content?.[index.story]?.contentPresent === '結尾') {
+      setIndex((prev) => ({
+        story: initStoryIdx,
+        screen: prev.screen + 1,
+      }));
+    } else {
+      if (initRef.current) {
+        setStory(queryInfo?.content?.slice(0, index.story + 1));
+        initRef.current = false;
+        setTimeout(() => {
+          flatlistRef.current?.scrollToItem({
+            item: queryInfo?.content?.[index.story] ?? {},
+            animated: true,
+            viewPosition: 0,
           });
-        } catch {}
-      }, 200);
+        }, 100);
+      } else {
+        setStory((prev) => [...prev, queryInfo?.content?.[index.story]]);
+        storage.storeStory(
+          {
+            ...cacheData,
+            cachedIndex: {
+              story: index.story,
+              screen: index.screen,
+            },
+          },
+          'continueStory'
+        );
+      }
     }
-  }, [currentChatIdx]);
+  }, [index.story, queryInfo?.content, cachedIndex?.story]);
 
-  // 安著的 onMomentumScrollEnd不會在自動滾的時候設定數值
-  const endScroll = (e) => {
-    // console.log("end", e.nativeEvent.contentOffset.y);
-    if (maxY < e.nativeEvent.contentOffset.y) {
-      setMaxY(e.nativeEvent.contentOffset.y);
+  useEffect(() => {
+    if (flatlistRef.current && story.length) {
+      setTimeout(() => {
+        flatlistRef.current?.scrollToItem({
+          item: queryInfo?.content?.[index.story] ?? {},
+          animated: true,
+          viewPosition: 0,
+        });
+      }, 100);
     }
-  };
+  }, [index.story, story, queryInfo?.content]);
 
-  // 哀鳳的滑動可以滑超過最大值，導致current<maxY
-  const onScroll = (e) => {
-    console.log("現在Ｙ", e.nativeEvent.contentOffset.y);
-    console.log("最大Ｙ", maxY);
-    setCuttentY(e.nativeEvent.contentOffset.y);
-    if (maxY < e.nativeEvent.contentOffset.y) {
-      console.log("超過最大值");
-      setMaxY(e.nativeEvent.contentOffset.y);
-    }
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const config = await axios.get(
+          `http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story-list`
+        );
+        const screenings = await axios.get(
+          `http://api.xstudio-mclub.url.tw/api/v1/admin/screenings/${storyId}/${chapterId}`
+        );
 
+        const role = await axios.get(
+          `http://api.xstudio-mclub.url.tw/api/v1/admin/role`
+        );
+        const roleConf = await axios.get(
+          `http://api.xstudio-mclub.url.tw/api/v1/admin/setup-story-role`
+        );
+
+        // let allScreenings = {};
+        // if (!screenings?.data.length) {
+        //   allScreenings = await axios.get(
+        //     `http://api.xstudio-mclub.url.tw/api/v1/admin/screenings/${storyId}`
+        //   );
+        // }
+        const screenData = screenings?.data?.[cachedIndex?.screen ?? 0];
+
+        // if (screenData) {
+        // const content = await axios.get(
+        //   `http://api.xstudio-mclub.url.tw/api/v1/admin/content/1/3/60`
+        // );
+        // const content = await axios.get(
+        //   `http://api.xstudio-mclub.url.tw/api/v1/admin/content/${storyId}/${chapterId}/${screenData?.id}`
+        // );
+        // const storyContent = content?.data
+        //   ?.slice()
+        //   .sort((a, b) => a?.order - b?.order);
+
+        setQueryInfo({
+          config: config?.data[0] ?? {},
+          screenings: read_range_end
+            ? screenings?.data.slice(0, +read_range_end)
+            : screenings?.data ?? [],
+          role: role?.data ?? {},
+          // content: storyContent,
+          imageUrl: domain + screenData?.bg_view,
+          roleConf: roleConf?.data?.[0],
+        });
+      } catch (error) {
+        console.error('API 請求失敗：', error);
+      }
+    };
+    if (cachedIndex) initRef.current = true;
+    fetchData();
+    setIndex({
+      story: cachedIndex?.story ?? initStoryIdx,
+      screen: cachedIndex?.screen ?? 0,
+    });
+  }, [read_range_end]);
   return (
-    <>
-      {currentStory.default[currentBackIdx] && (
-        <ImageBackScreen img={currentStory.default[currentBackIdx].backImg}>
-          <StoryHeader
-            storyName={storyDetail.name}
-            author={storyDetail.author}
-          />
+    <ImageBackground
+      fadeDuration={2000}
+      style={[styles.container]}
+      resizeMode='cover'
+      source={
+        queryInfo?.imageUrl
+          ? {
+              uri: queryInfo?.imageUrl,
+            }
+          : null
+      }
+    >
+      <SafeAreaView style={{ flex: 1, position: 'relative' }}>
+        <StoryHeader
+          storyName={name}
+          author={author}
+          config={queryInfo?.config}
+        />
+        <Pressable
+          onPress={_.debounce(() => onPressOption(null), 300)}
+          style={{
+            flex: 1,
+          }}
+        >
           <FlatList
-            data={storyChatArr}
+            data={story}
             ref={flatlistRef}
-            keyExtractor={(item) => item.chatSN.toString()}
-            onMomentumScrollEnd={onScroll}
-            renderItem={({ item }) => {
-              return item.type === "P" ? (
-                <Chat
-                  photo={item.photo}
-                  name={item.name}
-                  textMsg={item.text}
-                  imgMsg={item.img}
-                  soundMsg={item.sound}
-                  videoMsg={item.video}
-                  direction={item.speaker}
-                  leftBackColor={item.backColor}
-                />
-              ) : (
-                <Narrator
-                  textMsg={item.text}
-                  imgMsg={item.img}
-                  soundMsg={item.sound}
-                  soundImg={item.soundImg}
-                  videoMsg={item.video}
-                  videoDirection={item.videoDirection}
-                  backStyle={item.backStyle}
-                  fontStyle={item.fontStyle}
-                />
+            keyExtractor={(item, index) => index.toString()}
+            scrollEnabled={true}
+            showsVerticalScrollIndicator={false}
+            onScrollToIndexFailed={({ index }) => {
+              setTimeout(() => {
+                flatlistRef.current?.scrollToItem({
+                  item: story[index] ?? {},
+                  animated: true,
+                  viewPosition: 0.5,
+                });
+              }, 0);
+            }}
+            renderItem={({ item, index }) => {
+              return (
+                <>
+                  {item?.contentPresent === '對話' ? (
+                    <Chat
+                      {...item}
+                      textMsg={item?.textContent}
+                      imgMsg={item?.graphy}
+                      soundMsg={item?.voice}
+                      videoMsg={item?.video}
+                      roleList={queryInfo?.role}
+                      onPressOption={onPressOption}
+                      index={index}
+                      roleConf={queryInfo?.roleConf}
+                    />
+                  ) : (
+                    <Narrator
+                      {...item}
+                      textMsg={item?.textContent}
+                      imgMsg={item?.graphy}
+                      soundMsg={item?.voice}
+                      videoMsg={item?.video}
+                      videoDirection={item?.videoFormat}
+                      index={index}
+                      onPressOption={onPressOption}
+                      choseRef={choseRef}
+                    />
+                  )}
+                </>
               );
             }}
           />
-        </ImageBackScreen>
-      )}
-    </>
+        </Pressable>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: Platform.OS === 'android' ? 10 : 20,
+    paddingBottom: 20,
+    backgroundColor: colors.dark,
+  },
+});
 
 export default StoryScreen;

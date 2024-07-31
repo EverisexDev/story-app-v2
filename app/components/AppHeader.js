@@ -1,6 +1,6 @@
-import React from "react";
-import { View, StyleSheet, Image, TouchableOpacity } from "react-native";
-import { useNavigation, DrawerActions } from "@react-navigation/native";
+import React from 'react';
+import { View, StyleSheet, Image, Pressable } from 'react-native';
+import { useNavigation, DrawerActions } from '@react-navigation/native';
 
 // import IconButton from "./IconButton";
 // import routes from "../navigations/routes";
@@ -12,14 +12,14 @@ function AppHeader() {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
+      <Pressable
         onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
       >
         <Image
           style={styles.imgIcon}
-          source={require("../../assets/blueeye.png")}
+          source={require('../../assets/blueeye.png')}
         />
-      </TouchableOpacity>
+      </Pressable>
       {/* <IconButton
         name="eye-outline"
         size={35}
@@ -39,11 +39,12 @@ function AppHeader() {
 const styles = StyleSheet.create({
   container: {
     height: 40,
-    flexDirection: "row",
-    justifyContent: "flex-start",
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems:'center'
   },
   text: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
     fontSize: 30,
   },
   imgIcon: {

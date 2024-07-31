@@ -1,45 +1,37 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
-import {
-  View,
-  StyleSheet,
-  Dimensions,
-  TouchableWithoutFeedback,
-} from "react-native";
-import { Video } from "expo-av";
-import colors from "../../config/colors";
-import StoryContext from "../story/context";
+import React, { useEffect, useRef, useMemo } from 'react';
+import { View, StyleSheet, Dimensions } from 'react-native';
+import { Video } from 'expo-av';
+import colors from '../../config/colors';
+
+const screenWidth = Dimensions.get('window').width;
 
 function NarratorVideo({ videoMsg, videoDirection }) {
-  const { currentChatIdx, setCurrentChatIdx } = useContext(StoryContext);
   const video = useRef(null);
-  const [status, setStatus] = useState({});
-  const screenWidth = Dimensions.get("window").width;
 
-  const videoStyle =
-    videoDirection === "row"
-      ? { width: screenWidth, height: screenWidth * (9 / 16) }
-      : { width: screenWidth, height: screenWidth * (16 / 9) };
+  const videoUrl = 'http://api.xstudio-mclub.url.tw/images/update/' + videoMsg;
 
+  const videoStyle = useMemo(
+    () =>
+      videoDirection === '橫'
+        ? { width: screenWidth, height: screenWidth * (9 / 16) }
+        : { width: screenWidth, height: screenWidth * (16 / 9) },
+    [videoDirection]
+  );
   useEffect(() => {
-    video.current.playAsync();
-  }, []);
-
+    video.current?.playAsync();
+  }, [videoMsg]);
   return (
-    <TouchableWithoutFeedback
-      onPress={() => {
-        setCurrentChatIdx(currentChatIdx + 1);
-      }}
-    >
-      <View style={styles.container}>
-        <Video
-          ref={video}
-          style={videoStyle}
-          source={videoMsg}
-          resizeMode="contain"
-          onPlaybackStatusUpdate={(status) => setStatus(() => status)}
-        />
-      </View>
-    </TouchableWithoutFeedback>
+    <View style={styles.container}>
+      <Video
+        ref={video}
+        style={videoStyle}
+        source={{ uri: videoUrl }}
+        resizeMode='contain'
+        // shouldPlay={false}
+        // isLooping
+        // onPlaybackStatusUpdate={(status) => setStatus(() => status)}
+      />
+    </View>
   );
 }
 
@@ -52,4 +44,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NarratorVideo;
+export default React.memo(NarratorVideo);
